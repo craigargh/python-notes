@@ -62,3 +62,88 @@ class Snippet(models.Model):
     class Meta:
         ordering = ('created',)
 ```
+
+There are different fields available for different data types:
+- `DateTimeField`
+- `CharField`
+- `TextField`
+- `BooleanField`
+
+All of the fields can be configured with different arguments. Some arguments of note:
+- `default`: The default value of the field, if no value is provided when the object is instantiated, this is the value that will be saved to the DB
+- `choices`: Limits the values that can be input for a character field. For example if you have a `countries` field you would want to limit it to a list of countries in the world
+- `auto_add_now`: Sets a datetime field's value to the current time if it isn't set
+
+To set the default order of objects that will be returned the `ordering` attribute is set in the `Meta` class. In this case it is ordered by the `created` field. To order the objects in descending order a `-` is prepended to the name of the field e.g. `ordering = ('-created')`.
+
+To use the models to create the tables and columns in the database you use the migration commands. 
+
+First you need to make the migrations for the app:
+
+```bash
+python manage.py makemigration snippets
+```
+
+This will generate a migrations file.
+
+Next you need to apply the migrations to apply the changes to the database:
+
+```bash
+python manage.py migrate
+```
+
+## Serializers
+
+A serializer class defines how to convert a model into different representations, like `json` or `xml`.
+
+Serializers are created in the `serializers.py` file of an app. There are multuple ways to set up a serializer.
+
+This serializer defines the behaviour when a model is created or updated:
+
+```python
+from rest_framework import serializers
+from snippets.models import Snippet, LANGUAGE_CHOICES, STYLE_CHOICES
+
+
+class SnippetSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    title = serializers.CharField(required=False, allow_blank=True, max_length=100)
+    code = serializers.CharField(style={'base_template': 'textarea.html'})
+    linenos = serializers.BooleanField(required=False)
+    language = serializers.ChoiceField(choise=LANGUAGE_CHOICES, default='python')
+    style = serializers.ChoiceField(choices=STYLE_CHOICES, default='friendly')
+
+    def create(self):
+        return Snippet.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+        instance.code = validated_data.get('code', instance.code)
+        instance.linenos = validated_data.get('linenos', instance.linenos)
+        instance.language = validated_data.get('language', instance.language)
+        instance.style = validated_data.get('style', instance.style)
+        instance.save()
+
+        return instance
+```
+
+The `create` and `update` define the behaviour when the `serializer.save()` method is called. The attributes at the start of the class determine the fields of the serializer and their data types.
+
+The `style` argument of the `code` field sets how the field will be displayed on an `html` page.
+
+`ModelSerializers` are a more concise way of creating a serializer from its model definition:
+
+```python
+from rest_framework import serializers
+from snippets.models import Snippet
+
+
+class SnippetSerializer(serializers.ModelSerializer):
+    model = Snippet
+    fields = ('id', 'title', 'code', 'linenos', 'language', 'style')
+```
+
+The `ModelSerializer` has default implementations for `create` and `update`, which can be overwritten.
+
+
+
