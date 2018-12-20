@@ -244,4 +244,4 @@ http --form POST http://localhost:8000/snippets/ code="print('hello')"
 
 The `--debug` flag shows additional debug information like the request headers.
 
-
+When you make a request from a web, the API returns `html` by default. This is based on the client request, just like the above examples. 
