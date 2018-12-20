@@ -14,16 +14,18 @@ To learn:
     1. ConfigMaps and Secrets (✓)
     1. Deployments (✓)
     1. Storage
+  - Come up with practice exercises/katas
 - Django Rest Framework
   - Official Tutorial (https://www.django-rest-framework.org/tutorial/quickstart/)
     1. Serialization (✓)
-    1. Requests
+    1. Requests (✓)
     1. Class based views
     1. Authentication and permissions
     1. Relationships and hyperlinked APIs
     1. Viewsets and routers
     1. Schemas and client libraries
   - API Guide
+  - Come up with practice exercises/katas
 - MongoDB and mongoengine
 - Redis
 - Celery

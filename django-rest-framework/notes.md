@@ -152,4 +152,96 @@ The rest framework uses a `Request` object that extends Django's `HttpRequest`. 
 
 The rest framework `Response` object takes unrendered content and works out the correct type of data to return to the client.
 
+The `status` module provides identifiers for status codes, such as `HTTP_400_BAD_REQUEST`.
+
+There are two ways to write views:
+1. Function based views with the `@api_view` wrapper
+1. Class based views with the `APIView` class
+
+The wrapper and class do multiple things related to requests. They make sure they receive a `Request` object, and add context information to the `Response` so that it knows what format to return the data (e.g. XML, JSON, HTTP).
+
+```python
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.framework import Response
+from snippets.models import Snippet
+from snippets.serializers import SnippetSerializer
+
+
+@api_view(['GET', 'POST'])
+def snippet_list(request):
+    if request.method == 'GET':
+        snippets = Snippet.objects.all()
+        serializer = SnippetSerializer(snippets, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = SnippetSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def snippet_detail(request, pk):
+    try:
+        snippet = Snippet.objects.get(pk=pk)
+    except Snippet.DoesNotExist:
+        return Reponse(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = SnippetSerializer(snippet)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        serializer = SnippetSerializer(snippet, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        snippet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+```
+
+View functions that use `@api_view` can have an optional `format` argument that contains the request format type. To use this argument, you need to add `format_suffix_patterns()` argument to the app's `url.py` file:
+
+```python
+from django.urls import path
+from rest_framework.urlpatterns import format_suffix_patterns
+from snippets import views
+
+urlpatterns = [
+    path('snippets/', views.snippet_list),
+    path('snippets/<int:pk>', views.snippet_detail),
+]
+
+urlpatterns = format_suffic_patterns(urlpatterns)
+```
+
+With the `httpie` library you can make requests to the API:
+
+```bash
+http http://localhost:8000/snippets/
+http http://localhost:8000/snippets/1/
+```
+
+You can state the format you want the data to be returned as using the `ACCEPT` flag of `httpie`
+
+```bash
+http http://localhost:8000/snippets/ ACCEPT:application/json
+http http://localhost:8000/snippets/ ACCEPT:text/html
+```
+
+When using the `POST` method you can specify the sent format with a `--json` or `--form` flag:
+
+```bash 
+http --json POST http://localhost:8000/snippets/ code="print('hello')"
+http --form POST http://localhost:8000/snippets/ code="print('hello')"
+```
+
+The `--debug` flag shows additional debug information like the request headers.
+
 
