@@ -146,4 +146,10 @@ class SnippetSerializer(serializers.ModelSerializer):
 The `ModelSerializer` has default implementations for `create` and `update`, which can be overwritten.
 
 
+## Requests and Responses
+
+The rest framework uses a `Request` object that extends Django's `HttpRequest`. The `request.data` attribute contains the data to Django's `request.POST`, `request.PUT`, and `request.PATCH` methods.
+
+The rest framework `Response` object takes unrendered content and works out the correct type of data to return to the client.
+
 
