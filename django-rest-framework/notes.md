@@ -13,13 +13,13 @@ pip install django djangorestframework
 To start a new Django project you can use the `django-admin startpoject` command to automatically generate boilerplate Django files:
 
 ```bash
-django-admin startpoject guitarpractice
+django-admin startpoject tutorial
 ```
 
 Django uses apps that make up the user-defined features of the application. To create a new app and generate all of the Django boilerplate:
 
 ```bash
-python manage.py startapp exercises
+python manage.py startapp snippets
 ```
 
 After creating a new app you need to add it to the Django `settings.py` file to include it in the application. When using the Django Rest Framework this also needs to be added to the `settings.py` file:
