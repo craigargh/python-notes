@@ -245,3 +245,128 @@ http --form POST http://localhost:8000/snippets/ code="print('hello')"
 The `--debug` flag shows additional debug information like the request headers.
 
 When you make a request from a web, the API returns `html` by default. This is based on the client request, just like the above examples. 
+
+
+## Class-based Views
+
+Class-based views can be created using inheritance. The `rest_framework.views.APIView` class provides a generic view with methods for `get`, `post`, `delete`, and `put`.
+
+Each of these methods should return a `Response` object or an exception.
+
+```python
+from rest_framework.views import APIView 
+from rest_framework.response import Response
+from rest_framework import status
+from djano.http import Http404
+
+from snippets.models import Snippet
+from snippets.serializers import SnippetSerializer
+
+
+class SnippetList(APIView):
+    def get(self, request, format=None):
+        snippets = Snippet.objects.all()
+        serializer = SnippetSerializer(snippets, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = SnippetSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+
+
+class SnippetDetail(APIView):
+    def get_object(self, pk):
+        try:
+            return Snippet.objects.get(pk=pk)
+        except Snippet.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        snippet = self.get_object(pk)
+        serializer = SnippetSerializer(snippet)
+        return Response(data=serializer.data)
+
+    def put(self, request, pk, format=None):
+        snippet = self.get_object(pk)
+        serializer = SnippetSerializer(snippet)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data)
+        return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+
+    def delete():
+        snippet = self.get_object(pk)
+        snippet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+```
+
+The `.as_view()` method is called to use class-based views in `urls.py`:
+
+```python
+urlpatterns = [
+    path('snippets/', views.SnippetList.as_view()),
+    path('snippets/<int:pk>/', views.SnippetDetail.as_view()),
+]
+```
+
+Mixins can provide reusable code for common tasks. For example the `CreateModelMixin` class provides reusable code for creating records. When using mixins, the `GenericAPIView` is used instead of the `APIView` class
+
+```python
+from rest_framework import mixins, generics
+
+class SnippetList(mixins.ListModelMixin,
+                  mixins.CreateModelMixin,
+                  generics.GenericAPIView):
+    queryset = Snippets.objects.all()
+    serializer_class = SnippetSerializer
+
+    def get(self, request, *args, **kwargs):
+        self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.create(request, *args, **kwargs)
+```
+
+The `ListModelMixin` provides the `.list()` method and the `CreateModelMixin` provides the `.create()` method.
+
+
+```python
+class SnippetDetail(mixins.RetrieveModelMixin,
+                    mixins.UpdateModelMixin,
+                    mixins.DestroyModelMixin,
+                    generics.GenericAPIView):
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetSerializer
+
+    def get(self, request, *args, **kwargs):
+        self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self.destroy(request, *args, **kwargs)
+```
+
+The `UpdateModelMixin` and `DestroyModelMixin` provide the `update` and `destroy` method respectively.
+
+Another alternative to defining each method's behaviour or using mixins, is to use generic views that have all of the default behaviour pre-written.
+
+The records to use is defined in the `queryset` attribute and the serialiser is set in the `serializer_class` attribute
+
+
+```python
+class SnippetList(generics.ListCreateAPIView):
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetSerializer
+
+
+class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetSerializer
+```
