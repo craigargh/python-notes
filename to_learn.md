@@ -19,7 +19,7 @@ To learn:
   - Official Tutorial (https://www.django-rest-framework.org/tutorial/quickstart/)
     1. Serialization (✓)
     1. Requests (✓)
-    1. Class based views
+    1. Class based views (✓)
     1. Authentication and permissions
     1. Relationships and hyperlinked APIs
     1. Viewsets and routers
