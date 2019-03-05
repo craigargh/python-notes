@@ -139,8 +139,9 @@ from snippets.models import Snippet
 
 
 class SnippetSerializer(serializers.ModelSerializer):
-    model = Snippet
-    fields = ('id', 'title', 'code', 'linenos', 'language', 'style')
+    class Meta:
+        model = Snippet
+        fields = ('id', 'title', 'code', 'linenos', 'language', 'style')
 ```
 
 The `ModelSerializer` has default implementations for `create` and `update`, which can be overwritten.
