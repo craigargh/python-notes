@@ -34,8 +34,12 @@ To learn:
 - Django
   - Django official tutorial
   - Two Scoops of Django
+- GraphQL
+  - https://docs.graphene-python.org/projects/django/en/latest/
 - Security
   - Hack Yourself First
+  - Identity and Data Security for Web Development
+  - Kali Linux 
 
 
 Low priority:
