@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+data:
+  another-param: another-value
+  extra-param: extra-value
+  my-config.txt: |
+    parameter1: value1
+    parameter2: value2
+metadata:
+  # creationTimestamp: "2006-01-02T15:04:05Z07:00"
+  name: my-config
+  namespace: default
+  resourceVersion: "13556"
+  selfLink: /api/v1/namespaces/default/configmaps/my-config
+  uid: 3641c553-f7de-11e6-98c9-06135271a273

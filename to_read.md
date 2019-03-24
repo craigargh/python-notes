@@ -1,0 +1,5 @@
+- Kubernetes Up and Running
+- Hack Yourself First
+- Identity and Data Security for Web Development
+- Kali Linux 
+  - Kali Docker images (https://www.kali.org/news/official-kali-linux-docker-images/)
