@@ -1,6 +1,12 @@
 Explanation + scan of security headers
 https://securityheaders.com/
 
+Django Pony Checkup
+https://www.ponycheckup.com/
+
+Mozilla Scanner
+https://observatory.mozilla.org/
+
 Google resources
 https://developers.google.com/web/fundamentals/security/
 
