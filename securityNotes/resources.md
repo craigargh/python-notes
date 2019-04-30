@@ -7,8 +7,14 @@ https://www.ponycheckup.com/
 Mozilla Scanner
 https://observatory.mozilla.org/
 
+Headers explanation
+https://www.twilio.com/blog/a-http-headers-for-the-responsible-developer
+
 Google resources
 https://developers.google.com/web/fundamentals/security/
+
+Mozilla Explanation
+https://developer.mozilla.org/en-US/docs/Learn/Server-side/First_steps/Website_security
 
 Flask Security
 http://flask.pocoo.org/docs/dev/security/
