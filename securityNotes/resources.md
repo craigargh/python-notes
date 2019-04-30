@@ -17,6 +17,8 @@ http://flask.pocoo.org/docs/dev/security/
 Django Security
 https://docs.djangoproject.com/en/2.2/topics/security/
 
+Terminology of Vulnerabilities
+https://cve.mitre.org/about/terminology.html#vulnerability
 
 ## Scanners
 
@@ -41,6 +43,9 @@ https://tls.imirhil.fr/
 HTTP Strict Transport Security
 https://hstspreload.org/
 
+Github's dependency vunerability scanner
+https://help.github.com/en/articles/about-security-alerts-for-vulnerable-dependencies
+
 ## Checklists
 
 Security Checklist
@@ -48,6 +53,11 @@ https://github.com/shieldfy/API-Security-Checklist
 
 Hardening Kubernetes Security on GCloud
 https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster
+
+## Common Vulnerabilities
+
+Common Vulnerability and Exposures List
+https://cve.mitre.org/cve/
 
 ## To Do
 
