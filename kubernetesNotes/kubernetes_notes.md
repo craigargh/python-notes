@@ -439,6 +439,20 @@ spec:
 
 Resources are requested by container, not pod. The pod's resource request is the sum of all the containers.
 
+### Benchmarking Resources
+
+To view the resource usage of a pod or node use the `top` argument:
+
+```bash
+kubectl top pods kuard-86hqea3
+```
+
+You can also view the usage for all instances of a resource type:
+
+```bash
+kubectl top pods
+```
+
 ### Persistent Data with Volumes
 
 When pods are deleted or a container restarts, all of the data in the filesystem is lost. This is not ideal for databases and other applications that need persistent storage.
