@@ -258,12 +258,12 @@ kubectl exec -it <pod-name> -- bash
 
 To copy a local file to a container:
 ```bash
-kubectl cp <pod-name>:/pod/path/to/file /local/path/to/file
+kubectl cp  /local/path/to/file <pod-name>:/pod/path/to/file
 ```
 
 To copy a container file to a local folder:
 ```bash
-kubectl cp  /local/path/to/file <pod-name>:/pod/path/to/file
+kubectl cp <pod-name>:/pod/path/to/file /local/path/to/file
 ```
 
 You can use the help command with any kubectl command:
