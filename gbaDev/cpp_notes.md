@@ -13,7 +13,7 @@ A basic hello wolrd program in C++ looks like this:
 #include <iostream>
 
 int main() {
-	std::cout << "Hello world\n";
+    std::cout << "Hello world\n";
 }
 ```
 
@@ -113,6 +113,323 @@ points = 0;
 
 ### Maths Operations
 
+The standard maths operations are all available in C++. These include:
 
+- addition `+`
+- subtraction `-`
+- multiplication `*`
+- division `/`
+- module `%`
+- brackets `()`
+
+Maths operators can be used to calculate the value of a variable:
+
+```cpp
+int points = 10;
+
+points = points + 1;
+points = points * 2;
+```
+
+To output the value of a variable
+
+```cpp
+std::cout << points << "\n";
+```
+
+### Variables and cout
+
+When outputting to standard out, data is displayed on a single line unless the `"\n"` special character is used.
+
+For example
+```cpp
+std::cout << "Hello "
+std::cout << "my "
+std::cout << "darling\n"
+
+```
+
+Will output
+```
+Hello my darling
+```
+
+Alternatively chaining can be used to write this on a single line:
+
+```cpp
+int score = 10;
+
+std::cout << "Score: " << score << " points";
+```
+
+### User Input
+
+Similar to `cout`, the `cin` command can be used for user data input from the command line.
+
+For example:
+
+```cpp
+int score;
+
+std::cout << "Enter your score:"
+std::cin >> score;
+```
+
+The `cin` function can be used to set the value of a variables using the `>>` pipe. The data type of the value will be cast to the type of the variable [CHECK THIS].
+
+### Doubles
+
+A `double` is a data type that can store decimal points. 
+
+For example 
+
+```cpp
+double height = 32.6;
+```
+
+## Conditionals and Logic
+
+
+An if statement allows you to control the flow of your programs based on conditions.
+
+The basic structure of an if statement includes:
+- The `if` keyword
+- A condition in brackets
+- A body
+
+In other words:
+
+```cpp
+if (condition){
+    // run this;
+}
+```
+
+The code in the body will only execute if the condition results in `true`.
+
+Here's an example:
+
+```cpp
+#include <iostream>
+
+int price;
+std::cout << "Enter the price: "
+std::cin >> price;
+
+if (price > 10.0){
+    std::cout << "\nToo expensive\n"
+}
+
+if (price <= 10.0){
+    std::cout << "\nYou can afford this\n"
+}
+```
+
+The comparison operators in C++ are:
+- equal to `==`
+- not equal to `!=`
+- greater than `>`
+- less than `<`
+- greater than or equal to `>=`
+- less than or equal to `<=`
+
+The `else` clause when used with an if statement will execute code when the `if` condition is `false`.
+
+Here's the above example rewritten with an `else`:
+
+
+```cpp
+#include <iostream>
+
+int price;
+std::cout << "Enter the price: "
+std::cin >> price;
+
+if (price > 10.0){
+    std::cout << "\nToo expensive\n"
+} else {
+    std::cout << "\nYou can afford this\n"
+}
+```
+
+The `else if` statement can be used to add additional conditions to an `if` statement:
+
+
+```cpp
+#include <iostream>
+
+int price;
+std::cout << "Enter the price: "
+std::cin >> price;
+
+if (price > 10.0){
+    std::cout << "\nToo expensive\n"
+} else if(price == 10.00){
+    std::cout << "\nExactly the right amount\n"
+} else {
+    std::cout << "\nYou can afford this\n"
+}
+```
+
+### Switch Statements
+
+The `switch` statement are similar to `if` statements, however they only allow you to check if a value matches.
+
+The benefit of a `switch` statements are that they can check if multiple values match with a simpler syntax than `if` statements.
+
+The structure of a `switch` statement:
+
+```cpp
+switch(number) {
+    case 1:
+      // do this;
+      break;
+    case 2:
+      // do this;
+      break;
+    default:
+      // do this;
+      break;
+}
+```
+
+Here's an example with actual values:
+
+```cpp
+#include <iostream>
+
+std::cout << "Enter a number (1-5): "
+
+swtich (number) {
+    case 1:
+      std::cout << "One\n";
+      break;
+    case 2:
+      std::cout << "Two\n";
+      break;
+    case 1:
+      std::cout << "Three\n";
+      break;
+    case 1:
+      std::cout << "Four\n";
+      break;
+    case 1:
+      std::cout << "Five\n";
+      break;
+    default:
+       std::cout << "Number want not between 1 and 5\n";
+       break;
+}
+```
+
+
+### Logical operators
+
+C++ doesn't have boolean type, instead it just uses the `int` type with values `0` and `1`.
+
+To make this easier the values `true` and `false` evaluate to `1` and `0` respectively.
+
+Boolean operators allow the combination of Boolean values.
+
+The and operator (`&&`) evaluates to `true` only if both boolean values are `true`. If either or both are `false`, then it will evaluate to `false`.
+
+The or operator (`||`) evaluates to `true` if either boolean values are `true`. Only if both are `false`, then it will evaluate to `false`.
+
+The not operator (`!`) reverses the value of Boolean values. It will change `true` to `false` and `false` to `true`.
+
+## Loops
+
+Loops are used to repeat code. There are two main types of loop in C++: while loops and for loops.
+
+A while loop is similar to an if statement. It will run if a condition is met. The difference is that an if statement will only run code once at most, whereas as while loop can repeat it many times.
+
+The structure of a while loop is similar to an if statment:
+
+```cpp
+while (condition){
+    // do stuff here;
+}
+```
+
+Here's an example program:
+
+```cpp
+#include <iostream>
+
+
+int main(){
+    int sheep;
+
+    std::cout << "How many sheep? ";
+    std::cin >> sheep;
+    std::cout << "\n";
+
+    int count = 0;
+
+    while (count < sheep){
+        std::cout >> "Baa!\n";
+        count ++;
+    }
+}
+```
+
+For loops are different to while loops in that they will repeat a certain number of times.
+
+The basic stucture is:
+
+```cpp
+for (int i = 0; i < 20; i++){
+    // do something here;
+}
+```
+
+Here's the earlier program rewritten with a for loop instead:
+
+```cpp
+#include <iostream>
+
+int main(){
+    int sheep;
+
+    std::cout << "How many sheep? ";
+    std::cin >> sheep;
+    std::cout << "\n";
+
+    for (int i = 0; i < sheep; i++){
+        std::cout >> "Baa!\n";
+    }
+}
+```
+
+The operators in the for loop setup can be changed to decrement instead of increment:
+
+```cpp
+#include <iostream>
+
+int main(){
+    int sheep;
+
+    std::cout << "How many sheep? "
+    std::cin >> sheep;
+    std::cout << "\n";
+
+    for (int i = sheep; i > 0; i--){
+        std::cout >> "Baa!\n";
+    }
+}
+```
+
+## Errors
+
+There are different categories of errors with your code:
+- Compile-time error
+- Link-time error
+- Run-time error
+- Logic error
+
+
+
+
+## Vectors
 
 
