@@ -535,6 +535,14 @@ for (int i = 0; i < ages.size(); i++){
 }
 ```
 
+
 ## Functions
 
 
+Data types:
+- double
+- int
+- bool
+- char
+- std::string
+- std::vector

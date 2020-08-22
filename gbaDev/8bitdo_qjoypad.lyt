@@ -1,0 +1,17 @@
+# QJoyPad 4.3 Layout File
+
+Joystick 1 {
+	Axis 3: throttle+, +key 31, -key 0
+	Axis 6: throttle+, +key 32, -key 0
+	Axis 7: +key 40, -key 38
+	Axis 8: +key 39, -key 25
+	Button 1: key 45
+	Button 2: key 46
+	Button 3: rapidfire, key 45
+	Button 4: rapidfire, key 46
+	Button 5: key 31
+	Button 6: key 32
+	Button 7: key 22
+	Button 8: key 36
+}
+

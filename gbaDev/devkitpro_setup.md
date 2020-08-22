@@ -20,7 +20,18 @@ export DEVKITPPC=/opt/devkitpro/devkitPPC
 ```
 
 1. Reload env vars from profile `. ~/.profile`
-1. Install Visual Boy Advance `sudo apt-get install visualboyadvance`
+
+
+# 8BitDo/Xbox One Controller Setup with VisualBoy Advance
+
+1. Install Visual Boy Advance M using via Ubuntu software
+1. Connect joypad via Bluetooth
+
+If the controller is not detected by Visual Boy Advance:
+1. Install qjoypad
+1. Import 8bitdo_qjoypad.lyt in qjoypad
+
+# Other notes 
 
 
 Debian Packages
