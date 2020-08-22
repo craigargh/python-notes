@@ -3,6 +3,10 @@
 C++ is a compiled language that is built on top of the C programming language.
 
 
+Additional topics to research:
+- Arrays
+
+
 ## 1. Basics
 
 ### Hello World and main()
@@ -439,5 +443,98 @@ Logic errors are where a mistake in the programmers' code makes the program beha
 
 
 ## Vectors
+
+Vectors are used to store a collection of data values within a single variable. Collections use indexes to reference their values. Indexes start at 0. All data in a vector is the same data type.
+
+To use vectors, you must include the vector header file:
+
+```cpp
+#include <vector>
+```
+
+Vectors are defined with a data type:
+
+```cpp
+#include <vector>
+
+std::vector<int> ages; 
+```
+
+Like other variables, you can initialise a vector with values when you create it:
+
+```cpp
+#include <vector>
+
+std::vector<int> ages = {1, 6, 3};
+```
+
+Alternatively you can create an empty vector with a specified size:
+
+```cpp
+#include <vector>
+
+std::vector<int> ages(3);
+```
+
+The values in vectors are accessed using indexes:
+
+```cpp
+#include <iostream>
+#include <vector>
+
+std::vector<int> ages = {1, 6, 3};
+
+std::cout << ages[0] << "\n";
+std::cout << ages[2] << "\n";
+```
+
+
+Unlike arrays, you can easily resize a vector. To add an item to the end of a vector the `push_back()` method is used:
+
+```cpp
+#include <iostream>
+#include <vector>
+
+std::vector<int> ages = {1, 6, 3};
+
+ages.push_back(2);
+```
+
+To remove an item from the end of a vector, the `pop_back()` method is used:
+
+```cpp
+#include <iostream>
+#include <vector>
+
+std::vector<int> ages = {1, 6, 3};
+
+int last_age = ages.pop_back();
+```
+
+The `.size()` method is used to get the length of a vector:
+
+```cpp
+#include <iostream>
+#include <vector>
+
+std::vector<int> ages = {1, 6, 3};
+
+int length = ages.size();
+```
+
+You use a for loop to iterate over items in a vector:
+
+```cpp
+#include <iostream>
+#include <vector>
+
+std::vector<int> ages = {1, 6, 3};
+
+for (int i = 0; i < ages.size(); i++){
+    std::cout << ages[i];
+}
+```
+
+## Functions
 
 
