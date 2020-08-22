@@ -427,7 +427,15 @@ There are different categories of errors with your code:
 - Run-time error
 - Logic error
 
+Compile-time errors happen when an error is detected during compiling. These errors are caused by:
+- syntax errors: for example forgetting a `;`
+- type errors: for example trying to set a string value for an int variable
 
+Link-time errors are caused when functions or libraries are missing or can't be found.
+
+Run-time errors happen during the execution of a program. The program will compile fine, but the error will occur after the program starts running. For example a division by 0 is a run-time error.
+
+Logic errors are where a mistake in the programmers' code makes the program behave in unintended ways during run-time.
 
 
 ## Vectors
