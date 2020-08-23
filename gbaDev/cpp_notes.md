@@ -752,12 +752,25 @@ Function overloading is useful when you want a functions with the same name to w
 
 
 ```cpp
+int age(int birth_year, int current_year){
+    return current_year - birth_year;
+}
 
+double age(double birth_year, double current_year){
+    return current_year - birth_year;
+}
 ```
 
 
 Alternatively, you can use function templates, which allows you to define a function once that can be used with multiple types. Function templates should be included in header files.
 
 ```cpp
-
+template <typename T>
+T age(T birth_year, T current_year){
+    return current_year - birth_year;
+}
 ```
+
+## Classes and Objects
+
+
