@@ -4,8 +4,9 @@ C++ is a compiled language that is built on top of the C programming language.
 
 
 Additional topics to research:
+- include std::string type
 - Arrays
-
+- Char data type
 
 ## 1. Basics
 
@@ -114,6 +115,13 @@ The value of the variable can then be set/initialised later in the program:
 ```cpp
 points = 0;
 ```
+
+Here are some of the data types can be used in C++:
+- double
+- int
+- bool
+- char
+- std::string
 
 ### Maths Operations
 
@@ -538,11 +546,218 @@ for (int i = 0; i < ages.size(); i++){
 
 ## Functions
 
+Functions are reusable blocks of code. The main elements of a function in C++ are:
+- return type of the function
+- function name
+- parameters/arguments
+- function body
 
-Data types:
-- double
-- int
-- bool
-- char
-- std::string
-- std::vector
+Here's the basic structure of a funciton:
+
+```cpp
+return_type name(type param1, type param2){
+    // do some stuff
+    return new_value
+}
+```
+
+For example a function that calculates a percentage from two doubles and returns the result as a double:
+
+```cpp
+double percentage(double num1, double num2){
+    return num1/num2;
+}
+```
+
+Functions do not need to return a value, in which case their return type should be set to `void` and the `return` keyword can be omitted. 
+
+```cpp
+#include <iostream>
+
+void say_hello(std::string name){
+    std::cout << "Hello " << name;
+}
+```
+
+Void functions are also sometimes called subroutines.
+
+### Built-in Functions
+
+C++ includes several built-in functions in its standard library.
+
+Built-in functions can be added to programs by including their header file, for example the `cmath` header is used to add the `sqrt()` (square root) function:
+
+```cpp
+#include <cmath>
+
+std::cout << sqrt(16);
+```
+
+### Declaring and Defining Functions
+
+Functions can be declared before the body of their code is defined. This is useful for organising code so that the main function is near the top. For example
+
+```cpp
+#import <iostream>
+
+
+int age(int birth_year, int current_year);
+
+int main(){
+    std::cout << age(1972, 2020);
+}
+
+int age(int birth_year, int current_year){
+    return current_year - birth_year;
+}
+```
+
+### Variable Scope
+
+Variables that are defined outside of function can be accessed within functions. These variables are said to have global scope:
+
+```cpp
+#include <iostream>
+
+
+int age = 23;
+
+
+int main(){
+    std::cout << age;
+}
+```
+
+Variables that are defined within functions can only be accessed within that function. They cannot be accessed by other functions, unless their values is returned to that function.
+
+```cpp
+#include <iostream>
+
+int get_age(){
+    return 23;
+]
+
+int main(){
+    std::cout << get_age();
+}
+
+```
+
+### Separating Functions into Files
+
+As a program grows larger it is important to split it into multiple files so that it is easier to manage.
+
+In C++ you can split the functions into several files. However, any functions that are used by main need to be declared before they are used. 
+
+In this example the `age()` function is declared in `main.cpp`, but defined in `age.cpp`:
+
+`main.cpp`
+
+```cpp
+#include <iostream>
+
+
+int age(int birth_year, int current_year);
+
+int main(){
+    std::cout << age(1972, 2020);
+}
+```
+
+`age.cpp`
+
+```cpp
+int age(int birth_year, int current_year){
+    return current_year - birth_year;
+}
+```
+
+When compiling both file names need to be passed to the compiler:
+
+```bash
+g++ main.cpp age.cpp
+```
+
+
+A better way to split functions into several files is to use header files. The header file will declare the function, while the definition is still done in a `.cpp` file. This makes organising functions easier as the `main.cpp` doesn't need to declare all of the functions defined in other files.
+
+The header file should be imported into the `main.cpp` so that it can read the declarations.
+
+Here's the same example split to use a headers file:
+
+```cpp
+#include <iostream>
+#include "age.hpp"
+
+int main(){
+    std::cout << age(1972, 2020);
+}
+```
+
+`age.hpp`
+
+```cpp
+int age(int birth_year, int current_year);
+```
+
+
+`age.cpp`
+
+```cpp
+int age(int birth_year, int current_year){
+    return current_year - birth_year;
+}
+```
+
+The header file can use a `.hpp` or `.h` file extension, though `.h` is usually used by standard C programs.
+
+### Inline Functions
+
+Inline functions are functions that are defined in the header file. Their code is substitued for where they are called when the program is compiled. This can slow down compilation times, but increase execution times when used correctly.
+
+Inline functions use the `inline` keyword. They should only be defined in the header file and not defined in `.cpp` files.
+
+
+`age.hpp`
+
+```cpp
+inline 
+int age(int birth_year, int current_year){
+    return current_year - birth_year;
+}
+```
+
+### Default Arguments
+
+Default arguments can be declared in functions. They will set the default argument values passed to functions when the function call does not set them.
+
+For example:
+
+```cpp
+int age(int birth_year, int current_year=2020){
+    return current_year - birth_year;
+}
+
+int main(){
+    std::cout << age(1952);
+}
+```
+
+When splitting functions into header files, the default arguments should be included in the declaration in the header file, but not in the definition in the `.cpp` file.
+
+
+### Function Overloading and Templates
+
+Function overloading is useful when you want a functions with the same name to work for different types. 
+
+
+```cpp
+
+```
+
+
+Alternatively, you can use function templates, which allows you to define a function once that can be used with multiple types. Function templates should be included in header files.
+
+```cpp
+
+```
