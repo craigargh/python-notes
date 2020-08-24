@@ -4,7 +4,11 @@ C++ is a compiled language that is built on top of the C programming language.
 
 
 Additional topics to research:
-- include std::string type
+- std::string type
+- bool type
+- structs
+- Class inheritance
+- Memory allocation
 - Arrays
 - Char data type
 
@@ -773,4 +777,192 @@ T age(T birth_year, T current_year){
 
 ## Classes and Objects
 
+Classes are user defined data types. You can define attributes and methods that can be used by your classes.
 
+The main components of a class are:
+
+- The `class` keyword
+- A name
+- attributes
+- public methods
+- private methods
+
+
+Defining a basic class:
+
+```cpp
+class Dog{
+    int age;
+
+public:
+    void bark(){
+        std::cout << "Bark!";
+    }
+
+private:
+    void run(){
+        std::cout << "Running";
+    }
+};
+```
+
+When splitting class declaration and defintion into header and `cpp` files the syntax for classes is slightly different.
+
+The header would look like this:
+
+```cpp
+class Dog{
+    int age;
+
+public:
+    void bark();
+
+private:
+    void run();
+};
+```
+
+While the `cpp` defintion would only define the behaviour of the functions:
+
+```cpp
+void Dog::bark(){
+    std::cout << "Bark!";
+} 
+
+void Dog::run(){
+    std::cout << "Running";
+}
+```
+
+To use a class, you create objects. Each object has access to the methods and attriutes of the class, however some of them are private so can't be called.
+
+To create an object and then call one of the methods:
+
+```cpp
+Dog new_dog;
+new_dog.bark();
+```
+
+One pattern for classes is to use setters and getters to manage private attribute values:
+
+
+```cpp
+class Dog{
+    int age;
+
+public:
+    void set_age(int new_age){
+        age = age;
+    }
+
+    int get_age(){
+        return age;
+    }
+};
+```
+
+Broken down into headers and cpp files:
+
+Header:
+
+```cpp
+class Dog{
+    int age;
+
+public:
+    void set_age(int new_age):
+
+    int get_age();
+};
+```
+
+cpp:
+
+```cpp
+void Dog::set_age(int new_age){
+    age = age;
+}
+
+int Dog::get_age(){
+    return age;
+}
+```
+
+Constructors are a way to set the attributes of a class when it is created.
+
+```cpp
+class Dog{
+    int age;
+    std::string;
+
+public:
+    Dog(int new_age, std::string new_name)
+    : age(new_age), name(new_name){}
+};
+```
+
+Split into headers:
+
+```cpp
+class Dog{
+    int age;
+    std::string;
+
+public:
+    Dog(int new_age, std::string new_name);
+};
+```
+
+And cpp:
+
+```cpp
+Dog:Dog(int new_age, std::string new_name)
+    : age(new_age), name(new_name){}
+```
+
+Alternatively you can use standard function syntax in the constructor:
+
+```cpp
+Dog:Dog(int new_age, std::string new_name){
+    age = new_age;
+    name = new_name;
+}
+```
+
+To create an instance object of a class that has a contructor:
+
+```cpp
+Dog my_dog(3, "Barker");
+```
+
+Destructors are used to define special behaviour when a class is destroyed:
+
+```cpp
+Dog::~Dog(){
+    //some custom code here
+}
+```
+
+The reasons that are classes are destroyed are:
+- The object is no longer in scope
+- The object is explicitly deleted by the programmer's code
+- The program finishes execution
+
+## References
+
+
+Reference variables
+
+Reference variables as arguments
+
+Constants
+
+Constants as arguments
+
+Memory Addresses operator
+
+Pointers
+
+Dereference
+
+Null Pointers
