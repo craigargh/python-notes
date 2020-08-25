@@ -1,0 +1,16 @@
+- Display a static JPEG
+- Animate a sprite
+- Button input
+- Move a sprite with input
+- Background tiles
+- Mutli-layer backgrounds
+- Interactive NPC sprites
+- Setup Debugger
+- Save/Load
+- Detect button held and double tap
+- Pause menu
+- Character creation menu
+- Dailogue box
+- Sprite w/ attack animations
+- Sprite hit detection
+- Enemy sprite AI

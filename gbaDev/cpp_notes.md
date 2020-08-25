@@ -4,9 +4,13 @@ C++ is a compiled language that is built on top of the C programming language.
 
 
 Additional topics to research:
-- std::string type
-- bool type
-- structs
+- Create a section about data types
+    - type casting
+    - std::string type
+    - bool type
+    - structs
+    - hex
+    - binary
 - Class inheritance
 - Memory allocation
 - Arrays
