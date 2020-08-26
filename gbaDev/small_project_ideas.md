@@ -1,10 +1,16 @@
+
+
 - Display a static JPEG
+- Importing sprites with grit
 - Animate a sprite
 - Button input
 - Move a sprite with input
+- Drawing and importing backgrounds
 - Background tiles
 - Mutli-layer backgrounds
 - Interactive NPC sprites
+- Sounds
+- Music
 - Setup Debugger
 - Save/Load
 - Detect button held and double tap

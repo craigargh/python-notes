@@ -952,21 +952,145 @@ The reasons that are classes are destroyed are:
 - The object is explicitly deleted by the programmer's code
 - The program finishes execution
 
-## References
+## References and Pointers
+
+Each byte of memory has an address. When a variable is initialised with a value, the value is allocated a number of bytes of memory. 
+
+### Reference variables
+
+Reference variables are variables that point to the same location in memory as another variable. When one variable's value is changed, the other variable's value also changes.
+
+To create a reference variable, the `&` operator is added before a variables name.
+
+For example:
+```cpp
+int qty_of_apples = 20;
+int &number_of_apples = qty_of_apples; 
+```
+
+When the value of `qty_of_apples` changes then so will the value of `number_of_apples` and vice-versa.
+
+### Pass by Reference
+
+Normally when a value is passed as an argument to a function, then the function will create a copy of the value in its internatl scope. Changes to the value in the function will not affect the value of the original value passed as an argument.
+
+This can be changed by using the `&` reference operator on function arguments. Adding the `&` to a parameter declaration in a function will mean that any changes to the value in the function, will also affect the original value/variable that was passed to the function.
+
+For example:
+
+```cpp
+#include <iostream>
+
+void double_qty(int &number){
+  number *= 2;
+}
+
+int main(){
+  int apples = 10;
+  double_qty(apples);
+
+  std::cout << apples;
+}
+```
+
+The value of `apples` will be output as 20.
+
+### Constants
+
+A `const` (constant) variable is a variable whose value won't change. By doing this the compiler knows to throw an error if our program tries to change the value of a constant.
+
+```cpp
+int const conversion_rate = 2;
+```
+
+When used with a function argument the `const` keyword, the function knows that the value of the argument won't change throughout the execution of the function:
+
+```cpp
+int calculate_conversioon(int const conversion_rate, int const value){
+  return conversion_rate * value;
+}
+```
+
+Constant arguments can be refined further using the reference operator. By referencing the original value, an argument can reduce the need to allocate new memory. 
+
+```cpp
+int calculate_conversioon(int const &conversion_rate, int const &value){
+  return conversion_rate * value;
+}
+```
 
 
-Reference variables
+### Memory Address Operator 
 
-Reference variables as arguments
+The `&` operator has another use: to get the memory address/location of an object. 
 
-Constants
+For example here it is used to get the address of a variable:
 
-Constants as arguments
+```cpp
+int book_number = 12;
+std::cout << &book_number;
+```
 
-Memory Addresses operator
+Memory address are returned in hexadecimal. For example `0x0A0170330`.
 
-Pointers
+To remember the use of the `&`:
+- When it is used to declare a variable or argument, it is a reference operator
+- When it is not used in declaration, it is an address operator
 
-Dereference
 
-Null Pointers
+
+### Pointers
+
+Pointers are a type of variable that stores a memory address. 
+
+```cpp
+int book_number = 12;
+int* book_pointer = &book_number;
+```
+
+The `*` operator ignores spaces so writing the second line any of these ways is valid:
+
+```cpp
+int* book_pointer = & book_number;
+int *book_pointer = & book_number;
+int * book_pointer = & book_number;
+```
+
+
+### Dereference
+
+After initialising a pointer, you can get the value that the pointer references using a deference operator, which is also a `*` operator.
+
+For example:
+
+```cpp
+int book_number = 12;
+int* book_pointer = &book_number;
+
+std::cout << *book_pointer; // should be 12
+```
+
+To tell the different uses of a `*` apart:
+- When it is used in the declaration of a variable: it is creating a pointer
+- When it is not used in the declaraion: it is a deference
+
+### Null Pointers
+
+When declaring a pointer variable without a value it will reference nothing:
+
+```cpp
+int* pointer;
+```
+
+This is dangerous as it will hold a garbage value. If we don't yet know what the address should be when declaring the pointer, we can use C++'s `nullptr` value:
+
+```cpp
+int* pointer = nullptr;
+```
+
+In older code it is more common to see a `NULL` value instead:
+
+```cpp
+int* pointer = NULL;
+```
+
