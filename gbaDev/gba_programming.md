@@ -321,7 +321,19 @@ There are a couple of steps to set this up. First you need to include the system
 
 Then at the start of the program you use `irqInit()` to initialise the interrupts and `irqEnable(IRQ_VBLANK)` to enable the VBLANK interrupt. 
 
+```cpp
+irqInit();
+irqEnable(IRQ_VBLANK);
+```
+
 Finally, in the game loop you add the `VBlankIntrWait()` function to wait for VBLANK. Just like the code above this function will wait until the screen drawing is in a VBLANK so that you can control when you draw to VRAM.
+
+```cpp
+while(1){
+    VBlankIntrWait();
+    // Do whatever
+}
+```
 
 
 ### Sprites
