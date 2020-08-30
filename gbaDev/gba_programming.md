@@ -446,10 +446,10 @@ void UploadTileMem()
 
 There six several blocks of memory for tiles. This code creates a pointer to the VRAM memory location so that each block can be treated as an item in an array. For example `&MEM_TILE[4]` is the fifth block of tile memory.  
 
-Each block is 16kb in size, making the total 96kb for tile storage. These blocks are referred to as "tile blocks" or "char blocks". [THIS SEEMS INCORRECT COMPARED TO OTHER SOURCES AND THE VALUE IN THE CODE - IT MIGHT BE 32 KILOBYTES IN MODES 0-2, 16KILOBYTES IN MODES 3-5]
+There is 32 Kilobytes of memory dedicated to sprites on the GBA in modes 0, 1 and 2. There are 6 blocks with sprite memory: 4 blocks for background tiles; 2 blocks for sprite tiles. These blocks are referred to as "tile blocks" or "char blocks". 
 
 
-### Sprites
+#### Sprites
 
 Sprites in the GBA are referred to as objects (I'll refer to them as sprite objects for clarity). Sprite objects have a number of attributes that allow for the programmer to set their tiles, palettes and location. These objects can then be moved around the screen without the need to clear their past location, like was required in the Kyle Halladay rectangle tutorial.
 
@@ -691,21 +691,318 @@ spriteAttribs->attr1 = OBJ_X(0) | ATTR1_SIZE_16;
 
 ### Backgrounds
 
+Backgrounds on the GBA are similar to sprites. They are made up of tiles and palettes. Unlike sprites they can be very big, up to 1024x1024 pixels.
+
+The tile palette for backgrounds can store 256 colours. 
+
+Background tiles are stored as 8bit indexes into the colour palette, just like sprite tiles.
 
 
+The main difference between sprite tiles and background tiles, is that backgrounds are made up using one or more screen blocks. A screen block is an array of 32x32 blocks, with each item in the array containing an index to a background tile. There are 1024 tiles in a tile block array (32 x 32 = 1024). Tile indexes in the the tile block are arranged row by row. 
+
+There can be between 0 and 4 active backgrounds in use at once.
 
 
+This code will upload a background palette into memory:
+
+```cpp
+#include "tiles.h"
+
+#define MEM_BG_PALETTE    ((uint16*)(0x05000000))
+#define MEM_OBJ_PALETTE   ((uint16*)(0x05000200))
+
+void UploadPaletteMem()
+{
+    memcpy(MEM_BG_PALETTE, bgPal, bgPalLen);
+}
+```
+
+And to load the background tiles into memory:
+
+```cpp
+typedef uint16 Tile[32];
+typedef Tile TileBlock[256];
+
+#define MEM_VRAM                ((volatile uint32*)0x6000000)
+#define MEM_TILE                ((TileBlock*)0x6000000)
+
+void UploadTileMem()
+{
+    memcpy(&MEM_TILE[0][0], bgTiles, bgTilesLen);
+}
+```
+
+Backgrounds screen blocks and background tiles use the same memory for storage. Screen blocks use 2048 bytes, which means 8 screen blocks can fit in a background tile block at once. 
+
+To load the tile block into memory:
+
+```cpp
+typedef uint16 ScreenBlock[1024];
+#define MEM_SCREENBLOCKS        ((ScreenBlock*)0x6000000)
+
+void UploadScreenBlock()
+{
+    //checkerBg is the ScreenBlock data from the gist
+    memcpy(&MEM_SCREENBLOCKS[1], checkerBg, checkerBgLen);
+}
+```
+To display backgrounds, they need to be enabled via the display control register, which as we have covered is also repsonsible to setting the graphics mode and other things. 
+
+```cpp
+#define VIDEOMODE_0    0x0000
+#define BACKGROUND_0   0x0100
+#define BACKGROUND_1   0x0200
+#define BACKGROUND_3   0x0400
+#define BACKGROUND_4   0x0800
+
+#define REG_DISPLAYCONTROL     *((volatile uint16*)(0x04000000))
+
+int main()
+{
+    REG_DISPLAYCONTROL = VIDEOMODE_0 | BACKGROUND_0 | BACKGROUND_1;
+    return 0;
+}
+```
+
+There are four registers that control the properties of each of the available backgrounds:
+
+```cpp
+#define REG_BG0_CONTROL        *((volatile uint16*)(0x04000008))
+#define REG_BG1_CONTROL        *((volatile uint16*)(0x0400000A))
+#define REG_BG2_CONTROL        *((volatile uint16*)(0x0400000C))
+#define REG_BG3_CONTROL        *((volatile uint16*)(0x0400000E))
+```
+
+By setting the value of these registers your programs can control the size, starting screen block, etc.
+
+This table summarises which bits set which properties:
 
 
+| BG | 0x FEDC BA98 7654 3210 |
+-------------------------------
+| FE | Size (defined below) |
+| D |   Ignored today (see Tonc for info) |
+| CBA98 |   What Screen Block to start at |
+| 7 |   Color mode: (1 for 8bpp, 0 for 4bpp) |
+| 6 |   Ignored today (see Tonc for info) |
+| 54 |  Nothing, empty bits |
+| 32 |  Tile Block to use |
+| 10 |  Z Depth |
 
 
+The size as set by bits FE is based on the values in this table:
 
 
+| Bits | Size (in Tiles) |
+--------------------------
+| 00 | 32x32 |
+| 01 | 64x32 |
+| 10 | 32x64 |
+| 11 | 64x64 |
 
 
+The following code will set background 0 to a 32x32 background (size 0), with colour mode 1, a tile block of 1, and a depth of 0:
+
+```cpp
+//Size 00, Screen Block 1, Color Mode 1, Tile Block 0, Depth 0
+//0000 0001 1000 0000
+
+REG_BG0_CONTROL = 0x0180;
+```
+
+The z depth attribute sets the priority of the background. A value of 0 is the highest so it will be drawn on top of any backgrounds with a higer value.
+
+This code will create a 64x32 tile background that uses two screen blocks:
+
+```cpp
+// Size 01, Screen Block 2, Color Mode 1, Tile Block 1, Priority 1
+ // 0100 0010 1000 0101
+REG_BG1_CONTROL = 0x4285;
+```
+
+Since it has z depth of 1, it will have a lower priority and be drawn behind the other background.
+
+This is what the code will look like when combined (excluding the `generateGradient()` function), which is used to generate one of the backgrounds in the Kyle Halladay tutorial:
+
+```cpp
+#include <string.h>
+#include "tiles.h"
+#include "bg.h"
+
+typedef unsigned char      uint8;
+typedef unsigned short     uint16;
+typedef unsigned int       uint32;
+
+typedef uint16 ScreenBlock[1024];
+typedef uint16 Tile[32];
+typedef Tile TileBlock[256];
+
+#define VIDEOMODE_0    0x0000
+#define BACKGROUND_0   0x0100
+#define BACKGROUND_1   0x0200
+
+#define REG_DISPLAYCONTROL     *((volatile uint16*)(0x04000000))
+#define REG_BG0_CONTROL        *((volatile uint16*)(0x04000008))
+#define REG_BG1_CONTROL        *((volatile uint16*)(0x0400000A))
+
+#define MEM_VRAM                ((volatile uint32*)0x6000000)
+#define MEM_TILE                ((TileBlock*)0x6000000)
+#define MEM_SCREENBLOCKS        ((ScreenBlock*)0x6000000)
+
+#define MEM_BG_PALETTE          ((uint16*)(0x05000000))
+#define MEM_PALETTE             ((uint16*)(0x05000200))
+
+inline uint16 MakeCol(uint32 red, uint32 green, uint32 blue)
+{
+    return red | (green<<5) | (blue<<10);
+}
+
+void GenerateGradient();
+
+int main()
+{
+    //load data
+    memcpy(MEM_BG_PALETTE, bgPal, bgPalLen );
+    memcpy(&MEM_TILE[0][0], bgTiles, bgTilesLen);
+    memcpy(&MEM_SCREENBLOCKS[1], checkerBg, checkerBgLen);
+
+    GenerateGradient();
+
+    REG_BG0_CONTROL = 0x0180;// 0000 0001 1000 0000;
+    REG_BG1_CONTROL = 0x4285; // 0100 0010 1000 0101
+    REG_DISPLAYCONTROL =  VIDEOMODE_0 | BACKGROUND_0 | BACKGROUND_1;
+    while(1)
+    {
+    }
+    return 0;
+}
+```
+
+This can be rewritten using libgba like so:
+
+```cpp
+#include <string.h>
+#include "tiles.h"
+#include <gba_video.h>
+
+typedef u16 ScreenBlock[1024];
+typedef u16 Tile[32];
+typedef Tile TileBlock[256];
+
+#define MEM_TILE                ((TileBlock*)VRAM)
+#define MEM_SCREENBLOCKS        ((ScreenBlock*)VRAM)
+
+void GenerateGradient();
+
+int main()
+{
+    memcpy(BG_PALETTE, bgPal, bgPalLen );
+    memcpy(&MEM_TILE[0][0], bgTiles, bgTilesLen);
+    memcpy(&MEM_SCREENBLOCKS[1], checkerBg, checkerBgLen);
+
+    GenerateGradient();
+
+    REG_BG0CNT = BG_SIZE_0 | SCREEN_BASE(1) | BG_256_COLOR | BG_TILE_BASE(0) | BG_PRIORITY(0);
+    REG_BG1CNT = BG_SIZE_1 | SCREEN_BASE(2) | BG_256_COLOR | BG_TILE_BASE(1) | BG_PRIORITY(1);
+    
+    SetMode(MODE_0 | BG0_ENABLE | BG1_ENABLE);
+
+    while(1)
+    {
+    }
+    return 0;
+}
+```
+
+Using the background horizontal and vertical scroll registers it is relatively straightforward to move each background independantly. All you need to do is set the value in the register and the GBA does the rest of the work.
+
+This is the extra code for the Kyle Hallady example:
+
+```cpp
+#define REG_BG0_SCROLL_H       *((volatile uint16*)(0x04000010))
+#define REG_BG0_SCROLL_V       *((volatile uint16*)(0x04000012))
+#define REG_BG1_SCROLL_H       *((volatile uint16*)(0x04000014))
+#define REG_BG1_SCROLL_V       *((volatile uint16*)(0x04000016))
+#define REG_BG2_SCROLL_H       *((volatile uint16*)(0x04000018))
+#define REG_BG2_SCROLL_V       *((volatile uint16*)(0x0400001A))
+#define REG_BG2_SCROLL_H       *((volatile uint16*)(0x0400001C))
+#define REG_BG2_SCROLL_V       *((volatile uint16*)(0x0400001E))
+
+...
+
+//inside main
+
+int hScroll = 0;
+int h2Scroll = 0;
+while(1)
+{
+    vsync();
+
+    REG_BG0_SCROLL_H = -hScroll;
+    REG_BG1_SCROLL_H = h2Scroll;
+    h2Scroll +=2;
+    hScroll = h2Scroll/3;
+}
+
+```
 
 
+Here it is rewritten with libgba:
 
+```cpp
+#include <string.h>
+#include "tiles.h"
+#include <gba_video.h>
+#include <gba_systemcalls.h>
+#include <gba_interrupt.h>
+
+typedef u16 ScreenBlock[1024];
+typedef u16 Tile[32];
+typedef Tile TileBlock[256];
+
+#define REG_BG0HOFS_VOL     *((volatile u16 *)(REG_BASE + 0x10))
+#define REG_BG1HOFS_VOL     *((volatile u16 *)(REG_BASE + 0x14))
+
+#define MEM_TILE                ((TileBlock*)VRAM)
+#define MEM_SCREENBLOCKS        ((ScreenBlock*)VRAM)
+
+void GenerateGradient();
+
+int main()
+{
+    irqInit();
+    irqEnable(IRQ_VBLANK);
+
+    memcpy(BG_PALETTE, bgPal, bgPalLen );
+    memcpy(&MEM_TILE[0][0], bgTiles, bgTilesLen);
+    memcpy(&MEM_SCREENBLOCKS[1], checkerBg, checkerBgLen);
+
+    GenerateGradient();
+
+    REG_BG0CNT = BG_SIZE_0 | SCREEN_BASE(1) | BG_256_COLOR | BG_TILE_BASE(0) | BG_PRIORITY(0);
+    REG_BG1CNT = BG_SIZE_1 | SCREEN_BASE(2) | BG_256_COLOR | BG_TILE_BASE(1) | BG_PRIORITY(1);
+    
+    SetMode(MODE_0 | BG0_ENABLE | BG1_ENABLE);
+
+    int hScroll = 0;
+    int h2Scroll = 0;
+    while(1)
+    {
+        VBlankIntrWait();
+
+        REG_BG0HOFS_VOL = -hScroll;
+        REG_BG1HOFS_VOL = h2Scroll;
+        h2Scroll +=2;
+        hScroll = h2Scroll/3;
+    }
+    return 0;
+}
+```
+
+Although libgba provides `REG_BG0HOFS` and `REG_BG1HOFS` to set the horizontal offset of background 0 and background 1, they do not work in this context. This is because they are missing the volatile keyword, causing the compiler to stop them from working.
+
+
+### Input
 
 
 
