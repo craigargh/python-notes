@@ -9,6 +9,7 @@ Basic features:
 - Drawing and importing backgrounds
 - Background tiles
 - Mutli-layer backgrounds
+- Scrolling backgrounds (scenery + sky)
 - Interactive NPC sprites
 - Sounds
 - Music

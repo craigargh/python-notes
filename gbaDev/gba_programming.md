@@ -259,11 +259,6 @@ Here is the same program rewritten to use features of libgba:
 #include <gba_interrupt.h>
 
 
-inline uint16_t MakeCol(uint8_t red, uint8_t green, uint8_t blue)
-{
-    return red | green << 5 | blue << 10;
-}
-
 void drawRect(int left, int top, int width, int height, uint16_t clr)
 {
     for (int y = 0; y < height; ++y)
@@ -285,7 +280,7 @@ int main()
     for (int i = 0; i < SCREEN_HEIGHT; ++i)
     {
         for (int j = 0; j < SCREEN_WIDTH; ++j)
-        MODE3_FB[i][j] = MakeCol(0,0,0);
+        MODE3_FB[i][j] = RGB5(0,0,0);
     }
 
     int x = 0;
@@ -298,10 +293,10 @@ int main()
         if (x)
         {
             int last = x - 10;
-            drawRect(last % SCREEN_WIDTH, (last / SCREEN_WIDTH) * 10, 10, 10,MakeCol(0,0,0));
+            drawRect(last % SCREEN_WIDTH, (last / SCREEN_WIDTH) * 10, 10, 10, RGB5(0,0,0));
         }
 
-        drawRect(x % SCREEN_WIDTH, (x / SCREEN_WIDTH) * 10, 10, 10,MakeCol(31,31,31));
+        drawRect(x % SCREEN_WIDTH, (x / SCREEN_WIDTH) * 10, 10, 10, RGB5(31,31,31));
         x += 10;
 
     }
@@ -451,7 +446,7 @@ void UploadTileMem()
 
 There six several blocks of memory for tiles. This code creates a pointer to the VRAM memory location so that each block can be treated as an item in an array. For example `&MEM_TILE[4]` is the fifth block of tile memory.  
 
-Each block is 16kb in size, making the total 96kb for tile storage. These blocks are referred to as "tile blocks" or "char blocks". 
+Each block is 16kb in size, making the total 96kb for tile storage. These blocks are referred to as "tile blocks" or "char blocks". [THIS SEEMS INCORRECT COMPARED TO OTHER SOURCES AND THE VALUE IN THE CODE - IT MIGHT BE 32 KILOBYTES IN MODES 0-2, 16KILOBYTES IN MODES 3-5]
 
 
 ### Sprites
@@ -695,6 +690,57 @@ spriteAttribs->attr1 = OBJ_X(0) | ATTR1_SIZE_16;
 
 
 ### Backgrounds
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

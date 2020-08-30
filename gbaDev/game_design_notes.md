@@ -18,9 +18,11 @@ As a dedicated button
 
 Not at all
 
-# Attacks
+# Combat
 
-## Button Mashing vs Chained Attacks
+## Attacks
+
+### Button Mashing vs Chained Attacks
 
 In games like Link's Awakening and Castlevania: Circle of the Moon the player character has a single attack animation on their main weapon. Each time the player presses the attack button, the same animation plays with the weapon dealing the same amount of damage. Sometimes these animations can take a while to complete, leading the player to button mash.
 
@@ -28,28 +30,39 @@ An alternative to this design is a chained attack, like in games such as Dark So
 
 One potential alternative to button mashing is to execute quick attacks when the button is mashed. Double tapping the attack button can do a faster, yet lower damage attack. This avoids penalising players that button mash by offering them an attack that matches their frantic (often caused by panic or impatience) button mashing. 
 
-## Charge Attacks
+### Charge Attacks
 
 
 
 
-## Attack Combos
+### Attack Combos
 
-## Being Staggered
+### Poise and Stagger
 
-## Staggering the Enemy
+### Staggering the Enemy
 
-## Blocking and Parrying
+### Blocking and Parrying
 
 Hold for block, well timed for parry
 
-## Dodging/Rolling and iFrames
+### Dodging/Rolling and iFrames
 
 
-## Shields vs Dodging
+### Shields vs Dodging
 
 
-# Weapons
+## Damage
+
+### Contact Damage
+
+If the player is touching an enemy, does that cause damage to the player?
+
+Dark Souls - You can touch and enemy with receiving damage, as long as they aren't attacking
+
+Mario - Physical contact will kill you
+
+
+## Weapons
 
 Weapon variety in a game allows the player to adapt their build to suit their play style.
 
@@ -59,13 +72,13 @@ Too much weapon variety in a game can cause the following issues:
 - Balancing between weapons: where some weapons are more powerful/usable than others, while others are underpowered and never used
 - Grinding for a specific weapon and weapon upgrades
 
-## Basic Sword in Legend of Zelda: Link's Awakening
+### Basic Sword in Legend of Zelda: Link's Awakening
 
 Immediate
 
 Average damage
 
-## Whips in Castlevania
+### Whips in Castlevania
 
 Slow buildup
 
@@ -73,7 +86,7 @@ Wide vertical and horizontal range
 
 Harder to master the timing than a basic sword
 
-## Heavy Swords
+### Heavy Swords
 
 Slow, high damage
 
@@ -81,7 +94,7 @@ Requires two hands to wield
 
 Players must master timing and positioning
 
-## Light Sword/Dagger/Knife
+### Light Sword/Dagger/Knife
 
 Fast, low damage, small attack arc
 
