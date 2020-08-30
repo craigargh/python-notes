@@ -1,5 +1,6 @@
 
 
+Basic features:
 - Display a static JPEG
 - Importing sprites with grit
 - Animate a sprite
@@ -20,3 +21,14 @@
 - Sprite w/ attack animations
 - Sprite hit detection
 - Enemy sprite AI
+
+
+Games:
+- Solar Striker clone
+  - Double tap to barrel roll
+  - a for fire
+  - hold a for charged attack
+  - b for shield
+  - R/L switch guns
+- Pong
+- Snake

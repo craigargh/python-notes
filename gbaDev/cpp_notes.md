@@ -16,7 +16,9 @@ Additional topics to research:
 - Memory allocation
 - Arrays
 - Char data type
+- extern
 - Interrupts 
+
 
 ## 1. Basics
 
