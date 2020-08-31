@@ -1,8 +1,20 @@
 
 
-Basic features:
-- Display a static JPEG
+Learning:
+- Kyle Halladay tutorial
+- MaxMod Sound tutorial
 - Importing sprites with grit
+- Debugger setup
+- Saving and loading
+- Menu windows 
+
+Writing:
+- Document libgba sprite attributes in a table 
+- Document libgba background attributes in a table 
+
+
+Small project ideas:
+- Display a static JPEG
 - Animate a sprite
 - Button input
 - Move a sprite with input
@@ -13,7 +25,6 @@ Basic features:
 - Interactive NPC sprites
 - Sounds
 - Music
-- Setup Debugger
 - Save/Load
 - Detect button held and double tap
 - Pause menu

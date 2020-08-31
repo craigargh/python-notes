@@ -478,7 +478,7 @@ spriteAttribs->attr0 = 0x2032;
 This is a square sprite (bits FE) that uses 8 bits per pixel, with a Y coordinate of 50.
 
 | Attr 0 | 0x FEDC BA98 7654 3210 |
--------------------------------------
+|---|---|---|
 | FE |  Shape of Sprite: 00 = Square, 01 = Tall, 10 = Wide |
 | D  | Colour Mode: 0 = 4bpp, 1 = 8bpp |
 | C | Not used today |
@@ -491,7 +491,7 @@ And the values for `attr1`:
 
 
 | Attr 1 | 0x FEDC BA98 7654 3210 |
-------------------------------------
+|---|---|---|
 | FE | Sprite Size (discussed below) |
 | DCBA98 | Not Used Today |
 | 7654 3210 | X coordinate |
@@ -500,7 +500,7 @@ The dimensions of a sprite is based on two values, bits FE in `attr0` for shape 
 
 
 | Size 00 | Size 01 | Size 10 | Size 11 |
------------------------------------------
+|---|---|---|
 | Shape 00 | 8x8  | 16x16 | 32x23 | 64x64 |
 | Shape 01 | 16x8 | 32x8  | 32x16 | 64x32 |
 | Shape 10 | 8x16 | 8x32  | 16x32 | 32x64 |
@@ -779,7 +779,7 @@ This table summarises which bits set which properties:
 
 
 | BG | 0x FEDC BA98 7654 3210 |
--------------------------------
+|---|---|---|
 | FE | Size (defined below) |
 | D |   Ignored today (see Tonc for info) |
 | CBA98 |   What Screen Block to start at |
@@ -793,8 +793,8 @@ This table summarises which bits set which properties:
 The size as set by bits FE is based on the values in this table:
 
 
-| Bits | Size (in Tiles) |
---------------------------
+| Value | Size (in Tiles) |
+|---|---|---|
 | 00 | 32x32 |
 | 01 | 64x32 |
 | 10 | 32x64 |
@@ -1004,6 +1004,161 @@ Although libgba provides `REG_BG0HOFS` and `REG_BG1HOFS` to set the horizontal o
 
 ### Input
 
+The Game Boy Advance has 10 buttons in total: 4 directional buttons, A+B, Start and Select, and two shoulder buttons L+R.
+
+To get whether a button is pressed you can read from a register. The register's address is `0x4000130`. Each button corresponds to a bit in this register:
+
+| Button     | Bit |
+|---|---|---|
+| A          | 0   |
+| B          | 1   |
+| Select     | 2   |
+| Start      | 3   |
+| Right      | 4   |
+| Left       | 5   |
+| Up         | 6   |
+| Down       | 7   |
+| R Shoulder | 8   |
+| L Shoulder | 9   |
+
+
+When a button is pressed the value at the corresponding bit will be set to 0. When a button is not pressed the bit will be set to 1.
+
+Here's the code from the Kyle Halladay tutorial for the register and the corresponding key codes:
+
+```cpp
+#define REG_KEYINPUT  (* (volatile uint16*) 0x4000130)
+
+#define KEY_A        0x0001
+#define KEY_B        0x0002
+#define KEY_SELECT   0x0004
+#define KEY_START    0x0008
+#define KEY_RIGHT    0x0010
+#define KEY_LEFT     0x0020
+#define KEY_UP       0x0040
+#define KEY_DOWN     0x0080
+#define KEY_R        0x0100
+#define KEY_L        0x0200
+
+#define KEY_MASK     0xFC00
+```
+
+To check that a button is pressed this function can be used:
+
+```cpp
+uint32 getKeyState(uint16 key_code)
+{
+    return !(key_code & (REG_INPUT | KEY_MASK) );
+}
+```
+
+This uses a mask with the value of the register then combine it with a key code to check if a specific key is pressed. This will return 1 for pressed and 0 for not pressed, which is the opposite of what is stored in the register. The mask `0xFC00` is the value `0000 0011 1111 1111` in binary, which masks only the 10 bits used by the keys.
+
+For example to check if the right should button is pressed you can use `getKeyState(KEY_R)`. 
+
+A more advanced version stores the value of the previous buttons so that you can detect when a key is pressed and released. To get this to work, your program should call the `key_poll()` function once every game loop.
+
+Here's the input code as a header file (`input.h`):
+
+```cpp
+#ifndef INPUT_H
+#define INPUT_H
+
+unsigned short input_cur = 0x03FF;
+unsigned short input_prev = 0x03FF;
+
+#define REG_KEYINPUT  (* (volatile unsigned short*) 0x4000130)
+
+#define KEY_A        0x0001
+#define KEY_B        0x0002
+#define KEY_SELECT   0x0004
+#define KEY_START    0x0008
+#define KEY_RIGHT    0x0010
+#define KEY_LEFT     0x0020
+#define KEY_UP       0x0040
+#define KEY_DOWN     0x0080
+#define KEY_R        0x0100
+#define KEY_L        0x0200
+
+#define KEY_MASK     0xFC00
+
+inline void key_poll()
+{
+    input_prev = input_cur;
+    input_cur = REG_KEYINPUT | KEY_MASK;
+}
+
+inline unsigned short wasKeyPressed(unsigned short key_code)
+{
+    return (key_code) & (~input_cur & input_prev);
+}
+
+inline unsigned short wasKeyReleased(unsigned short key_code)
+{
+    return  (key_code) & (input_cur & ~input_prev);
+}
+
+inline unsigned short getKeyState(unsigned short key_code)
+{
+    return !(key_code & (input_cur) );
+}
+#endif
+```
+
+Here's what it looks like with the full program (excluding sprite and background data):
+
+```cpp
+#define VIDEOMODE_0    0x0000
+#define ENABLE_OBJECTS 0x1000
+#define MAPPINGMODE_1D 0x0040
+#define BACKGROUND_0   0x0100
+#define REG_DISPLAYCONTROL     *((volatile uint16*)(0x04000000))
+#define REG_VCOUNT             *((volatile uint16*)(0x04000006))
+
+inline void vsync()
+{
+  while (REG_VCOUNT >= 160);
+  while (REG_VCOUNT < 160);
+}
+
+int main()
+{
+    CreateBackground();
+    LoadTileData();
+
+    REG_DISPLAYCONTROL =  VIDEOMODE_0 | ENABLE_OBJECTS | BACKGROUND_0 | MAPPINGMODE_1D;
+    key_poll();
+    ClearSprite();
+
+    while(1)
+    {
+        vsync();
+        key_poll();
+
+        const uint16 keys[] = {KEY_A, KEY_B, KEY_SELECT,
+                                KEY_START, KEY_RIGHT, KEY_LEFT,
+                                KEY_UP, KEY_DOWN, KEY_L, KEY_R};
+        ClearSprite();
+        for (int i = 0; i < 10; ++i)
+        {
+            if (getKeyState(keys[i]))
+            {
+                DrawSprite(keys[i]);
+            }
+        }
+    }
+
+    return 0;
+}
+```
+
+
+
+The code for the `input.h` file rewritten to use libgba:
+
+```cpp
+
+```
 
 
 
@@ -1056,6 +1211,169 @@ Although libgba provides `REG_BG0HOFS` and `REG_BG1HOFS` to set the horizontal o
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Sprite and Background Attributes
+
+
+
+
+### Sprites
+
+#### Creating a Sprite
+
+[libgba struct]
+
+#### attr0
+
+| bit | setting |
+| --- | ---     |
+| 0   | Something | 
+| 1   | Something |
+| 2   | Something |
+| 3   | Something |
+| 4   | Something |
+| 5   | Something |
+| 6   | Something |
+| 7   | Something |
+| 8   | Something |
+| 9   | Something |
+| A   | Something |
+| B   | Something |
+| C   | Something |
+| D   | Something |
+| E   | Something |
+| F   | Something |
+
+
+X setting (bits 0-??) options:
+- [ligba constant]: explanation
+- [ligba constant]: explanation
+
+
+#### attr1
+
+| bit | setting |
+| --- | ---     |
+| 0   | Something | 
+| 1   | Something |
+| 2   | Something |
+| 3   | Something |
+| 4   | Something |
+| 5   | Something |
+| 6   | Something |
+| 7   | Something |
+| 8   | Something |
+| 9   | Something |
+| A   | Something |
+| B   | Something |
+| C   | Something |
+| D   | Something |
+| E   | Something |
+| F   | Something |
+
+
+X setting (bits 0-??) options:
+- [ligba constant]: explanation
+- [ligba constant]: explanation
+
+#### attr2
+
+| bit | setting |
+| --- | ---     |
+| 0   | Something | 
+| 1   | Something |
+| 2   | Something |
+| 3   | Something |
+| 4   | Something |
+| 5   | Something |
+| 6   | Something |
+| 7   | Something |
+| 8   | Something |
+| 9   | Something |
+| A   | Something |
+| B   | Something |
+| C   | Something |
+| D   | Something |
+| E   | Something |
+| F   | Something |
+
+X setting (bits 0-??) options:
+- [ligba constant]: explanation
+- [ligba constant]: explanation
+
+
+### Backgrounds
+
+
+| bit | setting |
+| --- | ---     |
+| 0   | Something | 
+| 1   | Something |
+| 2   | Something |
+| 3   | Something |
+| 4   | Something |
+| 5   | Something |
+| 6   | Something |
+| 7   | Something |
+| 8   | Something |
+| 9   | Something |
+| A   | Something |
+| B   | Something |
+| C   | Something |
+| D   | Something |
+| E   | Something |
+| F   | Something |
+
+X setting (bits 0-??) options:
+- [ligba constant]: explanation
+- [ligba constant]: explanation
+
+
+
+| libgba | Value | Size (in Tiles) |
+|---|---|---|---|
+| ??? | 00 | 32x32 |
+| ??? | 01 | 64x32 |
+| ??? | 10 | 32x64 |
+| ??? | 11 | 64x64 |
 
 
 
