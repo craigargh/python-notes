@@ -18,6 +18,7 @@ Writing:
 - Document libgba sprite attributes/settings in a table 
 - Document libgba background attributes/settings in a table 
 - Cross reference sprite/bg settings with official GBA documentation
+- Explain GBA architecture (refer to A-Level Computing book)
 
 
 Small project ideas:
