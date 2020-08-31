@@ -1,21 +1,28 @@
 
 
-Learning:
-- Kyle Halladay tutorial
-- MaxMod Sound tutorial
+Learning (✓):
+- Kyle Halladay tutorial (/)
 - Importing sprites with grit
-- Debugger setup
+- MaxMod Sound tutorial
+- Debugger setup (/)
 - Saving and loading
 - Menu windows 
+- Aesprite
+- Tiled (map editor)
+- Pixel art
+- Tonc
+- Game design patterns
+- Reread game design book
 
 Writing:
-- Document libgba sprite attributes in a table 
-- Document libgba background attributes in a table 
+- Document libgba sprite attributes/settings in a table 
+- Document libgba background attributes/settings in a table 
+- Cross reference sprite/bg settings with official GBA documentation
 
 
 Small project ideas:
 - Display a static JPEG
-- Animate a sprite
+- Animate a sprite in 4 directions
 - Button input
 - Move a sprite with input
 - Drawing and importing backgrounds
