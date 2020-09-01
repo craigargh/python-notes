@@ -1022,9 +1022,6 @@ typedef u16 ScreenBlock[1024];
 typedef u16 Tile[32];
 typedef Tile TileBlock[256];
 
-#define REG_BG0HOFS_VOL     *((volatile u16 *)(REG_BASE + 0x10))
-#define REG_BG1HOFS_VOL     *((volatile u16 *)(REG_BASE + 0x14))
-
 #define MEM_TILE                ((TileBlock*)VRAM)
 #define MEM_SCREENBLOCKS        ((ScreenBlock*)VRAM)
 
@@ -1052,8 +1049,9 @@ int main()
     {
         VBlankIntrWait();
 
-        REG_BG0HOFS_VOL = -hScroll;
-        REG_BG1HOFS_VOL = h2Scroll;
+        BG_OFFSET[0].x = -hScroll;
+        BG_OFFSET[1].x = h2Scroll;
+
         h2Scroll +=2;
         hScroll = h2Scroll/3;
     }
@@ -1061,7 +1059,9 @@ int main()
 }
 ```
 
-Although libgba provides `REG_BG0HOFS` and `REG_BG1HOFS` to set the horizontal offset of background 0 and background 1, they do not work in this context. This is because they are missing the volatile keyword, causing the compiler to stop them from working.
+The `BG_OFFSET` constants can be used to set the position of the the backgrounds. The index corresponds to the background layer. Each background has a x and y attrbute, which can be set to move the background.
+
+Note that although libgba also provides `REG_BG0HOFS` and `REG_BG1HOFS` to set the horizontal offset of background 0 and background 1, they do not work in this context. This is might be because they are missing the volatile keyword, causing the compiler to stop them from working.
 
 
 ### Input
@@ -1216,7 +1216,7 @@ int main()
 
 
 
-The code for the `input.h` file rewritten to use libgba:
+The code rewritten to use libgba (`input.h` file not needed):
 
 ```cpp
 
