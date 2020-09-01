@@ -1223,6 +1223,234 @@ The code rewritten to use libgba (`input.h` file not needed):
 ```
 
 
+### Buffers and Sprite Animation
+
+Buffers are a technique used to prevent issues with rendering. If you modify OAM outside of VBLANK you can cause issues like screen tearing. Buffers are used to prevent this.
+
+A buffer is effectively a copy of OAM. Whenever we need to make changes to sprite objects, we make the change to the buffer. When the VBLANK is hit, we copy the buffer into OAM.
+
+To define a buffer:
+
+```cpp
+ObjectAttributes oam_object_backbuffer[128];
+```
+
+This data is then copied into OAM during VBLANK:
+
+```cpp
+while(1)
+{
+    vsync();
+    MEM_OAM[0] = oam_object_backbuffer[0];
+}
+```
+
+In this code only the first sprite object is copied, but multiple sprite objects can be copied at once.
+
+To setup a sprite, we use the buffer instead of OAM directly:
+
+```cpp
+ObjectAttributes *spriteAttribs = &oam_object_backbuffer[0];
+spriteAttribs->attr0 = 0x2000;
+spriteAttribs->attr1 = 0x4000;
+spriteAttribs->attr2 = 0;
+```
+
+The sprite object attributes that were covered earlier have another two settings that can be used to flip the sprite  horizontally and vertically. These are the C and D bits of `attr1` respectively. 
+
+The x and y position are set using the top left corner of the sprite.
+
+To record the attributes of out sprite before we modify the buffer, we can use additional structs, for example:
+
+```cpp
+const int FLOOR_Y = 160-16;
+
+typedef struct
+{
+    ObjectAttributes* spriteAttribs;
+    int facingRight;
+    int firstAnimCycleFrame;
+    int animFrame;
+    int posX;
+    int posY;
+    int velX;
+    int velY;
+    int framesInAir;
+}HeroSprite;
+
+void InitializeHeroSprite(HeroSprite* sprite, ObjectAttributes* attribs)
+{
+    sprite->spriteAttribs = attribs;
+    sprite->facingRight = 1;
+    sprite->firstAnimCycleFrame = 0;
+    sprite->animFrame = 0;
+    sprite->posX = 0;
+    sprite->posY = FLOOR_Y;
+    sprite->velX = 0;
+    sprite->velY = 0;
+    sprite->framesInAir = 0;
+}
+```
+
+When calculating the index of sprite's starting tile for an animation, you need to consider two things. How big is the sprite? Am I use 4bpp or 8bpp. A 16x16 sprite is made up of four tiles, so the index position of the second frame of animation will be offset by 4. If using 8bpp this will be multiple by two as each tile uses twice as many bits as the previous.
+
+Here's some code to animat the sprite:
+
+```cpp
+void tickSpriteAnimation(HeroSprite* sprite)
+{
+    ObjectAttributes* spriteAttribs = sprite->spriteAttribs;
+
+    //set firstAnimCycleFrame and animFrame in code here
+
+    spriteAttribs->attr2 = sprite->firstAnimCycleFrame + (sprite->animFrame * 4 * 2);
+}
+```
+
+Here's the full code:
+
+```cpp
+#include "charsprites.h"
+#include <string.h>
+#include "gba.h"
+#include "input.h"
+
+ObjectAttributes oam_object_backbuffer[128];
+
+#define min(x,y) (x > y ? y : x)
+#define max(x,y) (x < y ? y : x)
+
+const int FLOOR_Y = 160-16;
+const int GRAVITY = 2;
+const int WALK_SPEED = 4;
+const int JUMP_VI = -10;
+
+typedef struct {
+    ObjectAttributes* spriteAttribs;
+    int facingRight;
+    int firstAnimCycleFrame;
+    int animFrame;
+    int posX;
+    int posY;
+    int velX;
+    int velY;
+    int framesInAir;
+}HeroSprite;
+
+void InitializeHeroSprite(HeroSprite* sprite, ObjectAttributes* attribs){
+    sprite->spriteAttribs = attribs;
+    sprite->facingRight = 1;
+    sprite->firstAnimCycleFrame = 0;
+    sprite->animFrame = 0;
+    sprite->posX = 0;
+    sprite->posY = FLOOR_Y;
+    sprite->velX = 0;
+    sprite->velY = 0;
+    sprite->framesInAir = 0;
+}
+
+void updateSpritePosition(HeroSprite* sprite) {
+    if (getKeyState(KEY_LEFT))
+    {
+        sprite->facingRight = 0;
+        sprite->velX = -WALK_SPEED;
+    }
+    else if (getKeyState(KEY_RIGHT))
+    {
+        sprite->facingRight = 1;
+        sprite->velX = WALK_SPEED;
+    }
+    else sprite->velX = 0;
+
+    int isMidAir = sprite->posY != FLOOR_Y;
+
+    if (getKeyState(KEY_A))
+    {
+        if (!isMidAir)
+        {
+            sprite->velY = JUMP_VI;
+            sprite->framesInAir = 0;
+        }
+    }
+
+    if (isMidAir)
+    {
+        sprite->velY = JUMP_VI + (GRAVITY * sprite->framesInAir);
+        sprite->velY = min(5, sprite->velY);
+        sprite->framesInAir++;
+    }
+
+    sprite->posX += sprite->velX;
+    //clamp to Screen
+    sprite->posX = min(240-16, sprite->posX);
+    sprite->posX = max(0, sprite->posX);
+
+    sprite->posY += sprite->velY;
+    sprite->posY = min(sprite->posY, FLOOR_Y);
+
+    sprite->spriteAttribs->attr0 = 0x2000 + sprite->posY;
+    sprite->spriteAttribs->attr1 = (sprite->facingRight? 0x4000 : 0x5000) + sprite->posX;
+}
+
+void tickSpriteAnimation(HeroSprite* sprite){
+    ObjectAttributes* spriteAttribs = sprite->spriteAttribs;
+    int isMidAir = sprite->posY != FLOOR_Y;
+
+    if (isMidAir) {
+        sprite->firstAnimCycleFrame = 56;
+        sprite->animFrame = sprite->velY > 0 ? 1 : 0;
+    } 
+    else if (sprite->velX != 0) {
+            sprite->firstAnimCycleFrame = 32;
+            sprite->animFrame = (++sprite->animFrame) % 3;
+    } 
+    else {
+        sprite->firstAnimCycleFrame = 0;
+        sprite->animFrame = (++sprite->animFrame) % 4;
+    }
+
+    spriteAttribs->attr2 = sprite->firstAnimCycleFrame + (sprite->animFrame * 8);
+}
+
+int main() {
+    memcpy(&MEM_TILE[4][0], charspritesTiles, charspritesTilesLen);
+    memcpy(MEM_PALETTE, charspritesPal, charspritesPalLen);
+
+    REG_DISPLAYCONTROL = VIDEOMODE_0 | BACKGROUND_0 | ENABLE_OBJECTS | MAPPINGMODE_1D;
+
+    HeroSprite sprite;
+    InitializeHeroSprite(&sprite, &oam_object_backbuffer[0]);
+
+    while(1) {
+        for (int i = 0; i < 4; i++){
+            key_poll();
+            vsync();
+        }
+
+        updateSpritePosition(&sprite);
+        tickSpriteAnimation(&sprite);
+        MEM_OAM[0] = oam_object_backbuffer[0];
+        
+    }
+
+    return 0;
+}
+```
+
+
+Here's the code rewritten to use libgba:
+
+```cpp
+
+```
+
+
+
+
+
+
+
+
 
 
 

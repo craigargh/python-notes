@@ -5,12 +5,12 @@ Learning (✓):
 - MaxMod Sound tutorial
 - Importing sprites with grit
 - Debugger setup (/)
-- Menu windows 
 - Aesprite
 - Tiled (map editor)
 - Pixel art
 - Saving and loading
 - Tonc
+- Menu windows 
 - Game design patterns
 - Reread game design book
 - gfs (Game Boy File System)
@@ -58,3 +58,4 @@ Games:
   - R/L switch guns
 - Pong
 - Snake
+- Space invaders
