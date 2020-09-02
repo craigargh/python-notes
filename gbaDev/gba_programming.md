@@ -1445,16 +1445,141 @@ Here's the code rewritten to use libgba:
 ```
 
 
+## Sounds and Music
+
+The maxmod library is a sound library that makes it easy to play music and small samples on the GBA. The library is available with devkitpro and is compatible with libgba.
+
+There are a number of music formats that are playing using maxmod. These include are MOD, S3M, XM, and IT. The `.xm` file format is probably the most common, however it is an unusual format that is not supported by many modern applications. It is however a popular chip-tune format so it is supported by several chip-tune focussed editors. The milkytracker software is one of the more popular editors.
+
+The maxmod library also supports conversion of `.wav` files. However due to the limits on the cartridge's size, these files are better suited for sound effects or very short pieces of music. Longer pieces of music should use `.xm`  or a similar format mentioned above as they require less storage.
+
+Setup for the maxmod library is minimal for a project that already uses the default libgba make file. Most of the required steps are already setup.
+
+In order to maxmod to a project follow these steps:
+1. Create a folder in your project called `audio` (you can also call it whatever you like)
+1. Open your project's `Makefile`
+1. Change the line `MUSIC :=` to `MUSIC := audio`
+
+Now when you add your music and sound effects files to the `audio` folder maxmod will automatically add them so that your project has access. To do this you can just run the following:
+
+1. Run `make clean`
+1. Run `make`
 
 
+When maxmod runs during the make process, it will generate a number of files. The main ones that you need to use in your C/C++ are `soundbank.h` and `soundbank_bin.h`.
+
+The headers in `soundbank.h` will be mostly based on the file names used in the `audio` folder. The `MOD_` prefix will be added to any `.xm` or `.mod` sound files, while `SFX_` will prefix any `.wav` files.
+
+In this program a sound file called `snd1.wav`, which has been added to the soundbank header file as `SFX_SND1`. The program will play the sound once every 100 frames:
+
+```cpp
+
+#include <gba_interrupt.h>
+#include <gba_systemcalls.h>
+#include <maxmod.h>
+#include "soundbank.h"
+#include "soundbank_bin.h"
 
 
+int main(void) {
+    irqInit();
+    irqEnable(IRQ_VBLANK);
+    irqSet(IRQ_VBLANK, mmVBlank);
+
+    mmInitDefault((mm_addr)soundbank_bin, 8);
 
 
+    int count = 10;
+
+    while (1) {
+        mmFrame();
+        VBlankIntrWait();
+
+        count++;
 
 
+        if (count % 100 == 0){
+            mmEffect( SFX_SND1 );
+        }
+    }
+}
+```
+
+The first part of the program includes the required maxmod and soundbank headers:
+
+```cpp
+#include <maxmod.h>
+#include "soundbank.h"
+#include "soundbank_bin.h"
+```
+
+Next, the `mmVBlank` is set as an interrupt handler:
+
+```cpp
+irqInit();
+irqEnable(IRQ_VBLANK);
+irqSet(IRQ_VBLANK, mmVBlank);
+```
+
+Maxmod is then initialised with 8 audio channels:
+
+```cpp
+mmInitDefault((mm_addr)soundbank_bin, 8);
+```
+The `mmFrame()` function needs to be called just before the interrupt wait to keep the sound in sync with the game:
+
+```cpp
+ while (1) {
+    mmFrame();
+    VBlankIntrWait();
+    // ...
+}
+```
+
+Finally to play the sound the `mmEffect()` function is called with the name of the effect from the `soundbank.h` header:
+
+```cpp
+mmEffect( SFX_SND1 );
+```
+
+If you want to play a song instead of a short sound effect, the `mmStart()` function can be used. The function takes the music file name from the `soundbin.h` header and argument for how it should repeat. 
+
+The options are `MM_PLAY_LOOP` which repeats a song until it is stopped, or `MM_PLAY_ONCE` which plays it once.
+
+Here's the program earlier modified to play a song instead:
+
+```cpp
+#include <gba_interrupt.h>
+#include <gba_systemcalls.h>
+#include <maxmod.h>
+#include "soundbank.h"
+#include "soundbank_bin.h"
 
 
+int main(void) {
+    irqInit();
+    irqEnable(IRQ_VBLANK);
+    irqSet(IRQ_VBLANK, mmVBlank);
+
+    mmInitDefault((mm_addr)soundbank_bin, 8);
+
+
+    int count = 10;
+
+    mmStart( MOD_MUS0, MM_PLAY_LOOP );
+
+    while (1) {
+        count++;
+
+        mmFrame();
+        VBlankIntrWait();
+    }
+}
+```
+
+To stop and resume music playbook (e.g. when you press the pause button on the game) you can use the `mmPause()` and `mmResume()` functions.
+
+ 
 
 
 

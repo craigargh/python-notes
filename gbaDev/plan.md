@@ -12,6 +12,7 @@ Learning (✓):
 - Tonc
 - Menu windows 
 - Game design patterns
+- MilkyTracker
 - Reread game design book
 - gfs (Game Boy File System)
 
@@ -58,4 +59,6 @@ Games:
   - R/L switch guns
 - Pong
 - Snake
+- Reverse Snake
 - Space invaders
+- Basic platformer
