@@ -3,7 +3,7 @@
 Learning (✓):
 - Kyle Halladay tutorial (/)
 - MaxMod Sound tutorial (✓)
-- Saving and loading (/)
+- Saving and loading (✓)
 - Importing sprites with grit
 - Debugger setup (/)
 - Aesprite

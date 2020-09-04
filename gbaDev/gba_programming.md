@@ -1621,18 +1621,18 @@ mmEffectPanning( sound, 255 );
 
 ## Save Data
 
+Save data on the GBA is stored on the cartridge in SRAM. The amount of space that is available for saves depends on the cartridge. Some cartridges have no built-in SRAM, meaning no save data can be saved. Others with built-in SRAM generally vary in size between 4KB and 64KB. 64KB is general max size for save storage, however Some cartridges such as those used by Pokemon Ruby and Sapphire used advanced techniques execeed this limit with a size of 1Mbit (approx 122 KB). 
 
-Size depends on the cartridge
+Cartridges generally tend to use one of two types of storage. An SRAM/FRAM chip which requires an additional battery to maintain the save date. If the battery runs out (which can take years), then the save data is lost. The other type of memory, EEPROM, does not require a battery and will stores the data almost indefinitely. 
 
-Two main types: with battery and eeprom (without battery)
+For the sake of simiplicity, this section refers to save memory as SRAM, irrelevant of whether it uses a SRAM/FRAM chip of EEPROM.
 
-By default the max size is 64K, however there are techniques to get around this. For example Pokemon Ruby/Sapphire
 
-When programming games on the GBA, the memory location between `0x0E000000` and `0x0E00FFFF` are available for writing and reading save data. Although these locations are available doesn't mean that all of the addresses can be used. Which addresses are available depends on the size of the SRAM installed in the cartridge. 
+When programming games on the GBA, the memory location between `0x0E000000` and `0x0E00FFFF` are available for writing and reading save data. This is 64KB of memory. Although these locations are available doesn't mean that all of the addresses can be used. Which addresses are available depends on the size of the SRAM installed in the cartridge. 
 
 Irrelevant of the size of the SRAM available, the first memory address will always be `0x0E000000`.
 
-Only 8 bits of data can be written to SRAM at once.
+Only 8 bits of data can be written to SRAM at once. So if you write 16 bit or 32 bit values, everything past the first 8 bits will be lost.
 
 Here's a program that fills the screen with a number of blue lines. By pressing down you can fill more of the screen, by pressing up you fill less of the screen. The save feature allows you to save the number of lines being drawn by pressing select and load that save by pressing start: 
 
