@@ -2,13 +2,13 @@
 
 Learning (✓):
 - Kyle Halladay tutorial (/)
-- MaxMod Sound tutorial
+- MaxMod Sound tutorial (✓)
+- Saving and loading (/)
 - Importing sprites with grit
 - Debugger setup (/)
 - Aesprite
 - Tiled (map editor)
 - Pixel art
-- Saving and loading
 - Tonc
 - Menu windows 
 - Game design patterns
@@ -18,6 +18,7 @@ Learning (✓):
 
 Writing:
 - Fix markdown tables
+- Tidy introduction for save data
 - Document libgba sprite attributes/settings in a table 
 - Document libgba background attributes/settings in a table 
 - Cross reference sprite/bg settings with official GBA documentation

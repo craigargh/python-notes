@@ -1579,15 +1579,144 @@ int main(void) {
 
 To stop and resume music playbook (e.g. when you press the pause button on the game) you can use the `mmPause()` and `mmResume()` functions.
 
- 
+
+Sound effects have a number of different attributes which can be set to control their playback. These attributes can be accessed by creating a new `mm_sound_effect()` object.
+
+For example:
+
+```cpp
+mm_sound_effect sound;
+sound.id = SFX_SND1;
+sound.rate = 512; // 1024 is original speed. This also affects pitch
+sound.volume = 200; 
+sound.panning = 0; //0 is left, 128 is centered, 255 is right
+
+``` 
+
+The use of these attributes allows the same sound to be used in different ways. For example changing the pitch of a sound allows it totally different noise to be created.
+
+After a sound has started playing it can be stopped with the `mmEffectCancel()` function.
+
+```cpp
+mm_sfxhand sound = mmEffect( SFX_SND1 );
+mmEffectCancel(sound);
+```
+
+There are also other controls for the sound while it is playing:
+
+```cpp
+// Copied from maxmod docs:
+sound = mmEffect( SFX_SND1 );
+
+// Change pitch to +1 octave
+mmEffectRate( sound, 1024*2 );
+
+// Change volume to half level (128/255)
+mmEffectVolume( sound, 128 );
+
+// Change panning to far-right
+mmEffectPanning( sound, 255 );
+```
 
 
+## Save Data
 
 
+Size depends on the cartridge
+
+Two main types: with battery and eeprom (without battery)
+
+By default the max size is 64K, however there are techniques to get around this. For example Pokemon Ruby/Sapphire
+
+When programming games on the GBA, the memory location between `0x0E000000` and `0x0E00FFFF` are available for writing and reading save data. Although these locations are available doesn't mean that all of the addresses can be used. Which addresses are available depends on the size of the SRAM installed in the cartridge. 
+
+Irrelevant of the size of the SRAM available, the first memory address will always be `0x0E000000`.
+
+Only 8 bits of data can be written to SRAM at once.
+
+Here's a program that fills the screen with a number of blue lines. By pressing down you can fill more of the screen, by pressing up you fill less of the screen. The save feature allows you to save the number of lines being drawn by pressing select and load that save by pressing start: 
+
+```cpp
+#include <gba_interrupt.h>
+#include <gba_systemcalls.h>
+#include <gba_video.h>
+#include <gba_input.h>
 
 
+u8 *saveMemory = ((u8*)0x0E000000);
+u16 keys_pressed = 0;
 
+void fillScreen(u8 rows){
+    for (int i = 0; i < SCREEN_HEIGHT; ++i)
+        {
+            u16 colour = 0x0000;
+            if (i > rows){
+                colour = 0x6666;
+            }
 
+            for (int j = 0; j < SCREEN_WIDTH; ++j)
+            {
+
+                MODE3_FB[i][j] = colour;
+            }
+        }
+}
+
+u16 keyPressed(u16 keyCode){
+    return keyCode & keys_pressed;
+}
+
+int main(void) {
+    irqInit();
+    irqEnable(IRQ_VBLANK);
+
+    SetMode(MODE_3 | BG2_ON);
+
+    u8 rows = 100;
+
+    while (1) {
+        VBlankIntrWait();
+        scanKeys();
+
+        keys_pressed = keysHeld();
+
+        if (keyPressed(KEY_UP)){
+            rows -= 1;
+        } else if (keyPressed(KEY_DOWN)) {
+            rows += 1;
+        } 
+
+        if (keyPressed(KEY_SELECT)){
+            saveMemory[0] = rows;
+        } else if (keyPressed(KEY_START)) {
+            rows = saveMemory[0];
+        }
+
+        fillScreen(rows);
+    }
+}
+```
+
+There are three lines that are important for saving and loading. First we define a pointer to save memory:
+
+```cpp
+u8 *saveMemory = ((u8*)0x0E000000);
+```
+
+Then when the select key is pressed we copy the value of the `rows` variable into index/address 0 of `saveMemory`:
+
+```cpp
+if (keyPressed(KEY_SELECT)){
+            saveMemory[0] = rows;
+```
+
+Then when the start button is pressed we load the value in memory back into the `rows` variable:
+
+```cpp
+else if (keyPressed(KEY_START)) {
+    rows = saveMemory[0];
+}
+```
 
 
 
