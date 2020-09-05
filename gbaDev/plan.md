@@ -1,24 +1,22 @@
 
 
 Learning (✓):
-- Kyle Halladay tutorial (/)
+- Kyle Halladay tutorial (✓)
 - MaxMod Sound tutorial (✓)
 - Saving and loading (✓)
 - Importing sprites with grit
 - Debugger setup (/)
 - Aesprite
-- Tiled (map editor)
+- Tiled/OGMO (map editor)
 - Pixel art
+- libgba console 
 - Tonc
-- Menu windows 
+- Beginner and Optimisation FAQs
 - Game design patterns
 - MilkyTracker
 - Reread game design book
-- gfs (Game Boy File System)
 
 Writing:
-- Fix markdown tables
-- Tidy introduction for save data
 - Document libgba sprite attributes/settings in a table 
 - Document libgba background attributes/settings in a table 
 - Cross reference sprite/bg settings with official GBA documentation

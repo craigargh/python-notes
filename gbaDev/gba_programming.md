@@ -4,6 +4,8 @@
 ## Setup
 
 
+To use CPP20 you need to add `-std=c++20` to the CXXFLAGS in the makefile.
+
 ### Emulator
 
 There are several emulators for the Game Boy Advance. On Ubuntu Linux mgba and vba-m are the most fully featured.

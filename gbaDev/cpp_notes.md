@@ -11,6 +11,7 @@ Additional topics to research:
     - structs
     - hex
     - binary
+    - C++ map
 - Integer size and memory allocation (e.g. how are 16 bit integers stored in memory?)
 - Class inheritance
 - Memory allocation
