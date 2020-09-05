@@ -540,7 +540,7 @@ spriteAttribs->attr0 = 0x2032;
 This is a square sprite (bits FE) that uses 8 bits per pixel, with a Y coordinate of 50.
 
 | Attr 0 | 0x FEDC BA98 7654 3210 |
-|---|---|---|
+|---|---|
 | FE |  Shape of Sprite: 00 = Square, 01 = Tall, 10 = Wide |
 | D  | Colour Mode: 0 = 4bpp, 1 = 8bpp |
 | C | Not used today |
@@ -553,7 +553,7 @@ And the values for `attr1`:
 
 
 | Attr 1 | 0x FEDC BA98 7654 3210 |
-|---|---|---|
+|---|---|
 | FE | Sprite Size (discussed below) |
 | DCBA98 | Not Used Today |
 | 7654 3210 | X coordinate |
@@ -562,7 +562,7 @@ The dimensions of a sprite is based on two values, bits FE in `attr0` for shape 
 
 
 | Size 00 | Size 01 | Size 10 | Size 11 |
-|---|---|---|
+|---|---|---|---|
 | Shape 00 | 8x8  | 16x16 | 32x23 | 64x64 |
 | Shape 01 | 16x8 | 32x8  | 32x16 | 64x32 |
 | Shape 10 | 8x16 | 8x32  | 16x32 | 32x64 |
@@ -841,7 +841,7 @@ This table summarises which bits set which properties:
 
 
 | BG | 0x FEDC BA98 7654 3210 |
-|---|---|---|
+|---|---|
 | FE | Size (defined below) |
 | D |   Ignored today (see Tonc for info) |
 | CBA98 |   What Screen Block to start at |
@@ -856,7 +856,7 @@ The size as set by bits FE is based on the values in this table:
 
 
 | Value | Size (in Tiles) |
-|---|---|---|
+|---|---|
 | 00 | 32x32 |
 | 01 | 64x32 |
 | 10 | 32x64 |
@@ -1071,7 +1071,7 @@ The Game Boy Advance has 10 buttons in total: 4 directional buttons, A+B, Start 
 To get whether a button is pressed you can read from a register. The register's address is `0x4000130`. Each button corresponds to a bit in this register:
 
 | Button     | Bit |
-|---|---|---|
+|---|---|
 | A          | 0   |
 | B          | 1   |
 | Select     | 2   |
@@ -1913,7 +1913,7 @@ X setting (bits 0-??) options:
 
 
 | libgba | Value | Size (in Tiles) |
-|---|---|---|---|
+|---|---|---|
 | ??? | 00 | 32x32 |
 | ??? | 01 | 64x32 |
 | ??? | 10 | 32x64 |
