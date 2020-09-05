@@ -541,7 +541,7 @@ This is a square sprite (bits FE) that uses 8 bits per pixel, with a Y coordinat
 
 | Attr 0 | 0x FEDC BA98 7654 3210 |
 |---|---|
-| FE |  Shape of Sprite: 00 = Square, 01 = Tall, 10 = Wide |
+| FE |  Shape of Sprite: 00 = Square, 01 = Wide, 10 = Tall |
 | D  | Colour Mode: 0 = 4bpp, 1 = 8bpp |
 | C | Not used today |
 | AB | Not used today |
@@ -1219,7 +1219,104 @@ int main()
 The code rewritten to use libgba (`input.h` file not needed):
 
 ```cpp
+#include "tiles.h"
+#include <string.h>
+#include <gba_input.h>
+#include <gba_video.h>
+#include <gba_systemcalls.h>
+#include <gba_interrupt.h>
+#include <gba_sprites.h>
 
+typedef u16 ScreenBlock[1024];
+typedef u16 Tile[32];
+typedef Tile TileBlock[256];
+
+
+#define MEM_TILE ((TileBlock*)VRAM)
+#define MEM_SCREENBLOCKS ((ScreenBlock*)VRAM)
+
+
+u16 keysPressed = 0;
+
+typedef struct ObjectAttributes {
+    u16 attr0;
+    u16 attr1;
+    u16 attr2;
+    u16 pad;
+} __attribute__((packed, aligned(4))) ObjectAttributes;
+
+void LoadTileData();
+
+void CreateBackground(){
+    //...
+    REG_BG0CNT = BG_256_COLOR | BG_MAP_BASE(1);
+}
+
+
+void DrawSprite(u16 key_code){
+    const u16 keys[] = {KEY_A, KEY_B, KEY_SELECT, KEY_START, KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN, KEY_L, KEY_R};
+    const u16 bgCols[] = {RGB5(16,0,0), RGB5(0,16,0), RGB5(0,0,16),RGB5(16,16,0),RGB5(16,16,16),RGB5(32,16,0),RGB5(32,0,16),RGB5(16,0,32),RGB5(16,32,0),RGB5(32,0,32)};
+
+    int idx = 0;
+    for (int i = 0; i < 10; ++i) {
+        if (keys[i] == key_code){
+            idx = i;
+            break;
+        }
+    }
+
+    volatile ObjectAttributes *spriteAttribs = &OAM[0];
+    spriteAttribs->attr0 = OBJ_Y(47) | ATTR0_WIDE | ATTR0_COLOR_256;
+    spriteAttribs->attr1 = OBJ_X(79) | ATTR1_SIZE_64;
+    spriteAttribs->attr2 = OBJ_CHAR(idx * 32 * 2);
+
+    BG_PALETTE[0] = bgCols[idx];
+}
+
+void ClearSprite(){
+    volatile ObjectAttributes *spriteAttribs = &OAM[0];
+    spriteAttribs->attr0 = OBJ_Y(175) | ATTR0_WIDE  | ATTR0_COLOR_256;
+
+    BG_PALETTE[0] = 0;
+}
+
+
+u16 keyPressed(u16 keyCode){
+    return keyCode & keysPressed;
+}
+
+
+int main() {
+    irqInit();
+    irqEnable(IRQ_VBLANK);
+
+    CreateBackground();
+    LoadTileData();
+
+    SetMode(MODE_0 | OBJ_ENABLE | BG0_ENABLE | OBJ_1D_MAP);
+    scanKeys();
+    ClearSprite();
+
+    while(1){
+        VBlankIntrWait();
+        scanKeys();
+
+        const u16 keys[] =  {
+            KEY_A, KEY_B, KEY_SELECT,
+            KEY_START, KEY_RIGHT, KEY_LEFT,
+            KEY_UP, KEY_DOWN, KEY_L, KEY_R
+        };
+
+        keysPressed = keysDown();
+
+        for (int i = 0; i < 10; ++i) {
+            if (keyPressed(keys[i])) {
+                DrawSprite(keys[i]);
+            }
+        }
+    }
+    return 0;
+}
 ```
 
 
@@ -1441,7 +1538,150 @@ int main() {
 Here's the code rewritten to use libgba:
 
 ```cpp
+#include <string.h>
+#include <gba_video.h>
+#include <gba_sprites.h>
+#include <gba_input.h>
+#include <gba_systemcalls.h>
+#include <gba_interrupt.h>
+#include "charsprites.h"
 
+
+OBJATTR oam_object_backbuffer[128];
+
+typedef u16 Tile[32];
+typedef Tile TileBlock[256];
+
+#define MEM_TILE ((TileBlock*)VRAM)
+#define min(x,y) (x > y ? y : x)
+#define max(x,y) (x < y ? y : x)
+
+const int FLOOR_Y = SCREEN_HEIGHT-16;
+const int GRAVITY = 2;
+const int WALK_SPEED = 4;
+const int JUMP_VI = -10;
+
+u16 keysPressed;
+
+typedef struct {
+    OBJATTR* spriteAttribs;
+    int facingRight;
+    int firstAnimCycleFrame;
+    int animFrame;
+    int posX;
+    int posY;
+    int velX;
+    int velY;
+    int framesInAir;
+}HeroSprite;
+
+void InitializeHeroSprite(HeroSprite* sprite, OBJATTR* attribs){
+    sprite->spriteAttribs = attribs;
+    sprite->facingRight = 1;
+    sprite->firstAnimCycleFrame = 0;
+    sprite->animFrame = 0;
+    sprite->posX = 0;
+    sprite->posY = FLOOR_Y;
+    sprite->velX = 0;
+    sprite->velY = 0;
+    sprite->framesInAir = 0;
+}
+
+bool keyPressed(u16 keyCode){
+    return keyCode & keysPressed;
+}
+
+void updateSpritePosition(HeroSprite* sprite) {
+    keysPressed = keysHeld();
+
+    if (keyPressed(KEY_LEFT))
+    {
+        sprite->facingRight = 0;
+        sprite->velX = -WALK_SPEED;
+    }
+    else if (keyPressed(KEY_RIGHT))
+    {
+        sprite->facingRight = 1;
+        sprite->velX = WALK_SPEED;
+    }
+    else sprite->velX = 0;
+
+    int isMidAir = sprite->posY != FLOOR_Y;
+
+    if (keyPressed(KEY_A))
+    {
+        if (!isMidAir)
+        {
+            sprite->velY = JUMP_VI;
+            sprite->framesInAir = 0;
+        }
+    }
+
+    if (isMidAir)
+    {
+        sprite->velY = JUMP_VI + (GRAVITY * sprite->framesInAir);
+        sprite->velY = min(5, sprite->velY);
+        sprite->framesInAir++;
+    }
+
+    sprite->posX += sprite->velX;
+    //clamp to Screen
+    sprite->posX = min(SCREEN_WIDTH-16, sprite->posX);
+    sprite->posX = max(0, sprite->posX);
+
+    sprite->posY += sprite->velY;
+    sprite->posY = min(sprite->posY, FLOOR_Y);
+
+    sprite->spriteAttribs->attr0 = OBJ_256_COLOR + OBJ_Y(sprite->posY);
+    sprite->spriteAttribs->attr1 = (sprite->facingRight? 0 : OBJ_HFLIP) | ATTR1_SIZE_16 | OBJ_X(sprite->posX);
+}
+
+void tickSpriteAnimation(HeroSprite* sprite){
+    OBJATTR* spriteAttribs = sprite->spriteAttribs;
+    int isMidAir = sprite->posY != FLOOR_Y;
+
+    if (isMidAir) {
+        sprite->firstAnimCycleFrame = 56;
+        sprite->animFrame = sprite->velY > 0 ? 1 : 0;
+    } 
+    else if (sprite->velX != 0) {
+            sprite->firstAnimCycleFrame = 32;
+            sprite->animFrame = (++sprite->animFrame) % 3;
+    } 
+    else {
+        sprite->firstAnimCycleFrame = 0;
+        sprite->animFrame = (++sprite->animFrame) % 4;
+    }
+
+    spriteAttribs->attr2 = sprite->firstAnimCycleFrame + (sprite->animFrame * 8);
+}
+
+int main() {
+    irqInit();
+    irqEnable(IRQ_VBLANK);
+
+    memcpy(&MEM_TILE[4][0], charspritesTiles, charspritesTilesLen);
+    memcpy(SPRITE_PALETTE, charspritesPal, charspritesPalLen);
+
+    SetMode(MODE_0 | OBJ_ENABLE | BG0_ENABLE | OBJ_1D_MAP);
+
+    HeroSprite sprite;
+    InitializeHeroSprite(&sprite, &oam_object_backbuffer[0]);
+
+    while(1) {
+        for (int i = 0; i < 4; i++){
+            scanKeys();
+            VBlankIntrWait();
+        }
+
+        updateSpritePosition(&sprite);
+        tickSpriteAnimation(&sprite);
+        OAM[0] = oam_object_backbuffer[0];
+        
+    }
+
+    return 0;
+}
 ```
 
 
