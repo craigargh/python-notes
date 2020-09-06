@@ -4,12 +4,12 @@ Learning (✓):
 - Kyle Halladay tutorial (✓)
 - MaxMod Sound tutorial (✓)
 - Saving and loading (✓)
-- Importing sprites with grit
-- Debugger setup (/)
+- Importing sprites with grit (/)
 - Aesprite
 - Tiled/OGMO (map editor)
 - Pixel art
 - libgba console 
+- Debugger setup (/)
 - Tonc
 - Beginner and Optimisation FAQs
 - Game design patterns
@@ -23,7 +23,8 @@ Writing:
 - Explain GBA architecture (refer to A-Level Computing book)
 
 
-Small project ideas:
+Small project ideas from scratch (without copying and pasting):
+- Default template (instead of using the libgba one)
 - Draw a rectangle
 - Button input
 - Set the screen colour using input

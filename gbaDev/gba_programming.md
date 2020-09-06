@@ -1865,7 +1865,7 @@ mmEffectPanning( sound, 255 );
 
 Save data on the GBA is stored on the cartridge in SRAM. The amount of space that is available for saves depends on the cartridge. Some cartridges have no built-in SRAM, meaning no save data can be saved. Others with built-in SRAM generally vary in size between 4KB and 64KB. 64KB is general max size for save storage, however Some cartridges such as those used by Pokemon Ruby and Sapphire used advanced techniques execeed this limit with a size of 1Mbit (approx 122 KB). 
 
-Cartridges generally tend to use one of two types of storage. An SRAM/FRAM chip which requires an additional battery to maintain the save date. If the battery runs out (which can take years), then the save data is lost. The other type of memory, EEPROM, does not require a battery and will stores the data almost indefinitely. 
+Cartridges generally tend to use one of two types of storage. An SRAM chip which requires an additional battery to maintain the save date. If the battery runs out (which can take years), then the save data is lost. The other types of memory, EEPROM and FRAM, do not require a battery and will stores the data almost indefinitely. 
 
 For the sake of simiplicity, this section refers to save memory as SRAM, irrelevant of whether it uses a SRAM/FRAM chip of EEPROM.
 
@@ -1959,6 +1959,70 @@ else if (keyPressed(KEY_START)) {
     rows = saveMemory[0];
 }
 ```
+
+## Importing Sprites with Grit
+
+
+```bash
+grit file_name.png -gB8 -Mh2 -Mw2 -ftc -pT3
+```
+
+- `gB{}`: number of bits per pixel. Set to `-gB8` for 8 bits per pixel and `-gB4` for 4 bits per pixel
+- `Mh{}`: Height of sprite in 8 pixel tiles. For a 16 pixel high sprite sprite use `Mh2` (16 / 8 = 2)
+- `Mw{}`: Height of sprite in 8 pixel tiles. For a 16 pixel wide sprite sprite use `Mw2` (16 / 8 = 2)
+- `ftc`: Output as C file type
+- `pT{}`: Index of the background colour in the palette that should be transparent (requires experimentation)
+- ???: Is there an easier way to make a transparent background?
+
+Extra useful options:
+- `W{}`: Output warning level. Set to `-W3` to see full list of warnings
+- ???: Save location
+- ???: Don't fill the entire pallette with empty colours
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
