@@ -4,19 +4,24 @@ Learning (✓):
 - Kyle Halladay tutorial (✓)
 - MaxMod Sound tutorial (✓)
 - Saving and loading (✓)
-- Importing sprites with grit (/)
+- Importing sprites with grit (✓)
+- Make some small games 
+- 4bpp sprites and backgrounds 
 - Aesprite
 - Tiled/OGMO (map editor)
 - Pixel art
 - libgba console 
 - Debugger setup (/)
 - Tonc
+- posprintf
 - Beginner and Optimisation FAQs
 - Game design patterns
-- MilkyTracker
+- Boss keys notes
 - Reread game design book
+- MilkyTracker
 
 Writing:
+- Correct EEPROM/SRAM explanation 
 - Document libgba sprite attributes/settings in a table 
 - Document libgba background attributes/settings in a table 
 - Cross reference sprite/bg settings with official GBA documentation

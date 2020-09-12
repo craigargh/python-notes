@@ -1865,9 +1865,11 @@ mmEffectPanning( sound, 255 );
 
 Save data on the GBA is stored on the cartridge in SRAM. The amount of space that is available for saves depends on the cartridge. Some cartridges have no built-in SRAM, meaning no save data can be saved. Others with built-in SRAM generally vary in size between 4KB and 64KB. 64KB is general max size for save storage, however Some cartridges such as those used by Pokemon Ruby and Sapphire used advanced techniques execeed this limit with a size of 1Mbit (approx 122 KB). 
 
-Cartridges generally tend to use one of two types of storage. An SRAM chip which requires an additional battery to maintain the save date. If the battery runs out (which can take years), then the save data is lost. The other types of memory, EEPROM and FRAM, do not require a battery and will stores the data almost indefinitely. 
+There are several different types of storage used in GBA cartridges. The first, an SRAM chip, requires an additional battery to maintain the save date when the console is switched off. If the battery runs out (which can take years on official Nintendo cartridges), then the save data is lost. 
 
-For the sake of simiplicity, this section refers to save memory as SRAM, irrelevant of whether it uses a SRAM/FRAM chip of EEPROM.
+The other types of memory, EEPROM, flash memory and FRAM, do not require a battery and will stores the data almost indefinitely. However some of these chips can only be written to a number of times before they stop working. However, this number is usually very high, so unless you play the game unusually frequently, you're unlikely to reach this limit.
+
+For the sake of simiplicity, this section refers to save memory as SRAM, irrelevant of the type of chip it uses.
 
 
 When programming games on the GBA, the memory location between `0x0E000000` and `0x0E00FFFF` are available for writing and reading save data. This is 64KB of memory. Although these locations are available doesn't mean that all of the addresses can be used. Which addresses are available depends on the size of the SRAM installed in the cartridge. 
@@ -1885,7 +1887,7 @@ Here's a program that fills the screen with a number of blue lines. By pressing 
 #include <gba_input.h>
 
 
-u8 *saveMemory = ((u8*)0x0E000000);
+u8 *saveMemory = ((u8*)SRAM);
 u16 keys_pressed = 0;
 
 void fillScreen(u8 rows){
@@ -1906,6 +1908,14 @@ void fillScreen(u8 rows){
 
 u16 keyPressed(u16 keyCode){
     return keyCode & keys_pressed;
+}
+
+void save(u8 data){
+    saveMemory[0] = data;
+}
+
+u8 load(){
+    return saveMemory[0];
 }
 
 int main(void) {
@@ -1929,9 +1939,9 @@ int main(void) {
         } 
 
         if (keyPressed(KEY_SELECT)){
-            saveMemory[0] = rows;
+            save(rows);
         } else if (keyPressed(KEY_START)) {
-            rows = saveMemory[0];
+            rows = load();
         }
 
         fillScreen(rows);
@@ -1945,39 +1955,98 @@ There are three lines that are important for saving and loading. First we define
 u8 *saveMemory = ((u8*)0x0E000000);
 ```
 
-Then when the select key is pressed we copy the value of the `rows` variable into index/address 0 of `saveMemory`:
+Then when the select key is pressed we call the `save()` function with the value of the `rows` variable. The function that will copy the data into index/address 0 of `saveMemory`:
 
 ```cpp
-if (keyPressed(KEY_SELECT)){
-            saveMemory[0] = rows;
-```
-
-Then when the start button is pressed we load the value in memory back into the `rows` variable:
-
-```cpp
-else if (keyPressed(KEY_START)) {
-    rows = saveMemory[0];
+void save(u8 data){
+    saveMemory[0] = data;
 }
 ```
 
-## Importing Sprites with Grit
+Then when the start button is pressed we load the value in memory back into the `rows` variable by calling the `load()` function:
 
-
-```bash
-grit file_name.png -gB8 -Mh2 -Mw2 -ftc -pT3
+```cpp
+u8 load(){
+    return saveMemory[0];
+}
 ```
 
-- `gB{}`: number of bits per pixel. Set to `-gB8` for 8 bits per pixel and `-gB4` for 4 bits per pixel
-- `Mh{}`: Height of sprite in 8 pixel tiles. For a 16 pixel high sprite sprite use `Mh2` (16 / 8 = 2)
-- `Mw{}`: Height of sprite in 8 pixel tiles. For a 16 pixel wide sprite sprite use `Mw2` (16 / 8 = 2)
-- `ftc`: Output as C file type
-- `pT{}`: Index of the background colour in the palette that should be transparent (requires experimentation)
-- ???: Is there an easier way to make a transparent background?
+### WRAM
 
-Extra useful options:
-- `W{}`: Output warning level. Set to `-W3` to see full list of warnings
-- ???: Save location
-- ???: Don't fill the entire pallette with empty colours
+The save and load code shown above seems to work well with emulators and flash cartridges. 
+
+Although this should work, the GBATEK document implies that reads from SRAM should be run from using WRAM in order for this to work. Therefore we may need to change our `load()` function to run from WRAM.
+
+Although this isn't necessarily a requirement unless you're planning to run your game on certain physical cartridges, it is relatively straightforward to add. It also may actually lead to some performance improvements when saving as WRAM is faster.
+
+To run the `load()` and `save()` functions using WRAM, you need to add `IWRAM_CODE` at the start of the function defintion like so:
+
+```cpp
+IWRAM_CODE void save(u8 data){
+    saveMemory[0] = data;
+}
+
+IWRAM_CODE u8 load(){
+    return saveMemory[0];
+}
+```
+
+If the functions declarations and defintions were split using header files, the code would look more like this:
+
+`header`
+```cpp
+IWRAM_CODE void save(u8 data);
+
+IWRAM_CODE u8 load();
+```
+
+`C file`
+```cpp
+void save(u8 data){
+    saveMemory[0] = data;
+}
+
+u8 load(){
+    return saveMemory[0];
+}
+```
+
+### EEPROM
+
+The GBATEK documentation mentions that the memory location of EEPROM is different from SRAM. Although I haven't been able to verify this or test it using an EEPROM cartirdge, it is worth mentioning it here.
+
+According to GBATEK, when working with EEPROM the memory location for the save storage should be `0x0DFFFF00`.
+
+
+## Importing Sprites with Grit
+
+Grit is a tool that comes bundled with devKitPro's GBA tools. It is used to convert bitmap images into tile maps and palettes for sprite and backgrounds.
+
+When run it will output `.h` and `.c` files that contain the declarations and definitions of the tile map and palettes. The name of the tile map and palette will be based on the file name of the image. 
+
+For example running Grit on `ball.png` will result in a `ball.h` and `ball.c` file. Inside those files will be declarations and definitions for `ballTiles` and `ballPal` as well as `ballTileLen` and `ballPalLen`. 
+
+Just like tilemaps mentioned earlier, the header files can be included in the project files to access the tile data.
+
+Grit has many options, which makes the tool very flexible, but also very intimidating to a beginner.
+
+This command will create a tile map from a file called `ball.png`:
+
+```bash
+grit ball.png -gB8 -Mh2 -Mw2 -ftc -gTFFFFFF
+```
+
+Here is an explanation for each of the options used in this command:
+- `gB{}`: number of bits per pixel. Set to `-gB8` for 8 bits per pixel and `-gB4` for 4 bits per pixel
+- `Mh{}`: Height of sprite in 8 pixel tiles. For a 16 pixel high sprite use `Mh2` (16 / 8 = 2)
+- `Mw{}`: Height of sprite in 8 pixel tiles. For a 16 pixel wide sprite use `Mw2` (16 / 8 = 2)
+- `ftc`: Format the output for use with C programs
+- `gT{}`: The colour in the image that should be transparent on the sprite. In this example all white pixels (with value`FFFFFF`) will be replaced with transparent pixels in the game. The default value for this option is `FF00FF`.
+
+
+There are also some other options that you might find useful:
+- `W{}`: Output warning level. Set to `-W3` to see full list of warnings. This is useful if you're having problems when generating the data.
+- -o: The filename/location that the files will be output to. For example `-o ../source/ball` will output the files into the source folder with the names `ball.h` and `ball.c`
 
 
 
