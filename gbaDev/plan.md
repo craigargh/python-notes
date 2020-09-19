@@ -5,17 +5,21 @@ Learning (✓):
 - MaxMod Sound tutorial (✓)
 - Saving and loading (✓)
 - Importing sprites with grit (✓)
-- Make some small games 
+- Make some small games (/)
+- CpuFastSet to replace memcpy
 - 4bpp sprites and backgrounds 
-- Aesprite
+- Aseprite
 - Tiled/OGMO (map editor)
-- Pixel art
+- Pixel art book
 - libgba console 
 - Debugger setup (/)
 - Tonc
+- C++ programming book
 - posprintf
+- Unit testing
 - Beginner and Optimisation FAQs
 - Game design patterns
+- Introduction to Nintendo DS Programming
 - Boss keys notes
 - Reread game design book
 - MilkyTracker
@@ -26,6 +30,23 @@ Writing:
 - Document libgba background attributes/settings in a table 
 - Cross reference sprite/bg settings with official GBA documentation
 - Explain GBA architecture (refer to A-Level Computing book)
+
+
+Games:
+
+- Snake (✓)
+- Sprite with 4 directional walking animations
+- Pong
+- Space invaders
+
+- Solar Striker clone
+  - Double tap to barrel roll
+  - a for fire
+  - hold a for charged attack
+  - b for shield
+  - R/L switch guns
+- Basic platformer
+
 
 
 Small project ideas from scratch (without copying and pasting):
@@ -53,17 +74,3 @@ Small project ideas from scratch (without copying and pasting):
 - Sprite w/ attack animations
 - Sprite hit detection
 - Enemy sprite AI
-
-
-Games:
-- Solar Striker clone
-  - Double tap to barrel roll
-  - a for fire
-  - hold a for charged attack
-  - b for shield
-  - R/L switch guns
-- Pong
-- Snake
-- Reverse Snake
-- Space invaders
-- Basic platformer

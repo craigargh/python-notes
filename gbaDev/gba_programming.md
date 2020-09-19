@@ -2033,7 +2033,7 @@ Grit has many options, which makes the tool very flexible, but also very intimid
 This command will create a tile map from a file called `ball.png`:
 
 ```bash
-grit ball.png -gB8 -Mh2 -Mw2 -ftc -gTFFFFFF
+grit ball.png -gB8 -Mh2 -Mw2 -ftc -pn16 -gTFFFFFF
 ```
 
 Here is an explanation for each of the options used in this command:
@@ -2041,6 +2041,7 @@ Here is an explanation for each of the options used in this command:
 - `Mh{}`: Height of sprite in 8 pixel tiles. For a 16 pixel high sprite use `Mh2` (16 / 8 = 2)
 - `Mw{}`: Height of sprite in 8 pixel tiles. For a 16 pixel wide sprite use `Mw2` (16 / 8 = 2)
 - `ftc`: Format the output for use with C programs
+- `pn{}`: Limits the length of the palette. For example `-pn16` sets the palette to a max length of 16
 - `gT{}`: The colour in the image that should be transparent on the sprite. In this example all white pixels (with value`FFFFFF`) will be replaced with transparent pixels in the game. The default value for this option is `FF00FF`.
 
 
@@ -2048,16 +2049,47 @@ There are also some other options that you might find useful:
 - `W{}`: Output warning level. Set to `-W3` to see full list of warnings. This is useful if you're having problems when generating the data.
 - -o: The filename/location that the files will be output to. For example `-o ../source/ball` will output the files into the source folder with the names `ball.h` and `ball.c`
 
+Grit can convert multiple files at the same time, all you need to do is list all of the image names as arguments:
+
+```bash
+
+```
+
+The `-pS` option create a single shared palette for all of the images when they are converted.
 
 
 
 
 
 
+## CPU Fast Set
+
+The GBA BIOS has a built-in function called `CpuFastSet()` that is used for quickly copying the data from a block of memory to another block of memory. This is particularly useful for setting tile and palette data in VRAM, and copying an object backbuffer into OAM.
+
+To copy a palette and tileset into VRAM using  `CpuFastSet()` with libgba:
+
+```cpp
+void UploadPaletteMem(){
+    CpuFastSet(asukaPal, SPRITE_PALETTE, (asukaPalLen>>2) | COPY32);
+}
+
+void UploadTileMem(){
+    CpuFastSet(asukaTiles, &MEM_TILE[4][1], (asukaTilesLen>>2) | COPY32);
+}
+```
+
+The arguments of `CpuFastSet()` are `source`, `destination` and `mode` in that order. 
+
+The `COPY32` mode copies data in chunks of 32, which is the bus size of VRAM.
+
+The mode also needs to know the legnth of the memory to copy as a multiple of 8 [NEED TO CHECK THIS]. The tile and palette length are both divided by 4 to get this value. Since the GBA does not have optimised division, I've bit-shifted by 2 `asukaPalLen>>2` which is equivalent of `asukaPalLen/4`.
 
 
+The other main use of `CpuFastSet()` is to copy an object backbuffer into OAM. Here's an example of how to do that:
 
-
+```cpp
+CpuFastSet(oam_backbuffer, OAM, ((sizeof(OBJATTR)*128)>>2) | COPY32);
+```
 
 
 
