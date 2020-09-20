@@ -7,8 +7,10 @@ Learning (✓):
 - Importing sprites with grit (✓)
 - CpuFastSet to replace memcpy (✓)
 - Make snake (✓)
-- 4bpp sprites and backgrounds 
+- 4bpp sprites (✓)
 - Make four directional sprite movement
+- 4bpp backgrounds
+- Infinitely scrolling 4 directional sprite movement
 - Aseprite
 - Tiled/OGMO (map editor)
 - Pixel art book
@@ -37,6 +39,8 @@ Games:
 
 - Snake (✓)
 - Sprite with 4 directional walking animations
+- Infinitely scrolling 4 directional sprite movement
+- Windowing
 - Pong
 - Space invaders
 
