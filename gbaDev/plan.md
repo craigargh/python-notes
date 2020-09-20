@@ -5,9 +5,10 @@ Learning (✓):
 - MaxMod Sound tutorial (✓)
 - Saving and loading (✓)
 - Importing sprites with grit (✓)
-- Make some small games (/)
-- CpuFastSet to replace memcpy
+- CpuFastSet to replace memcpy (✓)
+- Make snake (✓)
 - 4bpp sprites and backgrounds 
+- Make four directional sprite movement
 - Aseprite
 - Tiled/OGMO (map editor)
 - Pixel art book

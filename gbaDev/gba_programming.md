@@ -532,6 +532,8 @@ typedef struct ObjectAttributes {
 
 Sprite objects structs are referred to as `ObjectAttributes`. These `ObjectAttributes` are stored in Object Attribute Memory, or OAM for short. The location of OAM is `0x07000000`.
 
+The maximum number of sprites that can be stored in OAM is 128.
+
 The values of `attr0`, `attr1` and `attr2` are responsible for managing a number of things on the sprite. For example the Y co-ordinate is set using bits 0-7 of `attr0`, bits FE are used to set the sprite shape, and bit D sets the colour mode:
 
 ```cpp
@@ -2092,10 +2094,110 @@ CpuFastSet(oam_backbuffer, OAM, ((sizeof(OBJATTR)*128)>>2) | COPY32);
 ```
 
 
+## 4 Bits Per Pixel Sprites
+
+When working with sprite tiles there are two options for colours. The 8 bits per pixel option allows each sprite to use a total of 256 colours, while 4 bits per pixel allows each sprite to use up to 16 colours.
+
+As a 4 bits per pixel tile takes up exactly half the amount of memory as an 8 bits per pixel tile, twice as many sprite tiles can be stored. In 4bpp mode a total of 1024 individual tiles can be stored in memory at once, while with 8bpp tiles only 512 individual tiles can be stored in memory at once.
+
+When using 4bpp sprite tiles, the palette is divided into 16 blocks of 16 colours. By selecting the palette block for a tile, all colours will be changed for that sprite. The default colour palette of a sprite is set to block 0. A sprite can only use one palette block of 16 colours at a time.
+
+```cpp
+#include <gba_video.h>
+#include <gba_interrupt.h>
+#include <gba_systemcalls.h>
+#include <gba_sprites.h>
+#include "asuka.h"
+
+OBJATTR oam_backbuffer[128];
+typedef u16 Tile[16];
+typedef Tile TileBlock[512];
+
+#define MEM_TILE ((TileBlock*) VRAM)
 
 
+int main(void) {
+    irqInit();
+    irqEnable(IRQ_VBLANK);
+
+    SetMode(MODE_0 | OBJ_ENABLE | BG0_ENABLE | OBJ_1D_MAP);
+
+    CpuFastSet(asukaTiles, &MEM_TILE[4][1], (asukaTilesLen >> 2) | COPY32);
+    CpuFastSet(asukaPal, SPRITE_PALETTE, (asukaPalLen >> 2) | COPY32);
+
+    volatile OBJATTR *sprite = &oam_backbuffer[0];
+    sprite->attr0 = OBJ_16_COLOR | ATTR0_SQUARE | OBJ_Y(50);
+    sprite->attr1 = ATTR1_SIZE_16 | OBJ_X(50);
+    sprite->attr2 = 1 | ATTR2_PALETTE(1);
+
+    while (1) {
+        VBlankIntrWait();
+
+        CpuFastSet(oam_backbuffer, OAM, ((sizeof(OBJATTR)*128)>>2) | COPY32);
+    }
+}
+```
+
+There are two steps in setting a sprite into 8bpp mode. First you need to set `attr0` to 16 colour mode:
+
+```cpp
+sprite->attr0 = OBJ_16_COLOR | ATTR0_SQUARE | OBJ_Y(50);
+```
+
+Second, you need to choose which palette block the sprite will use:
+
+```cpp
+sprite->attr2 = 1 | ATTR2_PALETTE(1);
+```
+
+Here it is using palette block 1. The range of values that can be used for sprite palette block are `0`  to `15`.
 
 
+## Sprite Tile Blocks
+
+There are two blocks of memory available in memory for sprite tiles. Each block is 32 KiloByte (1024 * 32 bytes) in size, meaning there is a total of 64KB of memory available for sprite tiles.
+
+When using 4bpp tiles this means there can be a total or 1024 tiles, as each tile is 32 bytes in size. For 8bpp tiles this number is 512, as each tile is 64 bytes in size.
+
+When loading sprites tiles into memory a block can set which block to load the tiles into using one of two methods.
+
+Defining `TileBlocks` allows you to load a sprite (in this case using 4bpp) into a specific location within a block:
+
+```cpp
+#include <gba_systemcalls.h>
+
+typedef u16 Tile[16];
+typedef Tile TileBlock[512];
+
+...
+
+CpuFastSet(asukaTiles, &MEM_TILE[4][1], (asukaTilesLen >> 2) | COPY32);
+```
+
+The sprite tile blocks when using this method are `MEM_TILE` index 4 and 5. The index 1 of block 4 is used for the sprite tile as for some reason using index 0 creates a graphics bug, which I don't understand.
+
+Alternatively you can load a whole block of sprites into memory at once by using the `TILE_BASE_ADR()` macro. For example to load into sprite block 0 and sprite block 1:
+
+```
+#include <gba_systemcalls.h>
+#include <gba_video.h>
+...
+
+CpuFastSet(itemSpriteTiles, TILE_BASE_ADR(0), (asukaTilesLen >> 2) | COPY32);
+CpuFastSet(enemySpriteTiles, TILE_BASE_ADR(0), (asukaTilesLen >> 2) | COPY32);
+``` 
+
+The sprite attribute `attr2` is used to set which tile a sprite will use. Here the sprite will the tile at index 1 of block 1:
+
+```cpp
+sprite->attr2 = 1 | ATTR2_PALETTE(0);
+```
+
+The tiles in the second block use index value 512 to 1023. Here we use the tile at index 0 of block 2:
+
+```cpp
+sprite->attr2 = 512 | ATTR2_PALETTE(0);
+```
 
 
 
