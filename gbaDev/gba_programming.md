@@ -2183,8 +2183,8 @@ Alternatively you can load a whole block of sprites into memory at once by using
 #include <gba_video.h>
 ...
 
-CpuFastSet(itemSpriteTiles, TILE_BASE_ADR(0), (asukaTilesLen >> 2) | COPY32);
-CpuFastSet(enemySpriteTiles, TILE_BASE_ADR(0), (asukaTilesLen >> 2) | COPY32);
+CpuFastSet(itemSpriteTiles, TILE_BASE_ADR(4), (asukaTilesLen >> 2) | COPY32);
+CpuFastSet(enemySpriteTiles, TILE_BASE_ADR(5), (asukaTilesLen >> 2) | COPY32);
 ``` 
 
 The sprite attribute `attr2` is used to set which tile a sprite will use. Here the sprite will the tile at index 1 of block 1:

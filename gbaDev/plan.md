@@ -8,20 +8,20 @@ Learning (✓):
 - CpuFastSet to replace memcpy (✓)
 - Make snake (✓)
 - 4bpp sprites (✓)
-- Make four directional sprite movement
+- Make four directional sprite movement (✓)
 - 4bpp backgrounds
 - Infinitely scrolling 4 directional sprite movement
+- Tonc
 - Aseprite
+- C++ programming book
+- Debugger setup (/)
+- libgba console 
+- posprintf
 - Tiled/OGMO (map editor)
 - Pixel art book
-- libgba console 
-- Debugger setup (/)
-- Tonc
-- C++ programming book
-- posprintf
 - Unit testing
-- Beginner and Optimisation FAQs
 - Game design patterns
+- Beginner and Optimisation FAQs
 - Introduction to Nintendo DS Programming
 - Boss keys notes
 - Reread game design book
