@@ -9,18 +9,24 @@ Learning (✓):
 - Make snake (✓)
 - 4bpp sprites (✓)
 - Make four directional sprite movement (✓)
+- Infinitely scrolling 4 directional sprite movement (✓)
+- Flash saves (/)
 - 4bpp backgrounds
-- Infinitely scrolling 4 directional sprite movement
+- Writing screen blocks with CpuFastSet
+- C++ programming book
+- Rewrite notes to only use concise libgba examples
+
 - Tonc
 - Aseprite
-- C++ programming book
 - Debugger setup (/)
+- mgba Logging 
 - libgba console 
 - posprintf
-- Tiled/OGMO (map editor)
-- Pixel art book
-- Unit testing
+- Game Programming Algorithms and Techniques
 - Game design patterns
+- Unit testing
+- Pixel art book
+- Tiled/OGMO (map editor)
 - Beginner and Optimisation FAQs
 - Introduction to Nintendo DS Programming
 - Boss keys notes
@@ -38,7 +44,7 @@ Writing:
 Games:
 
 - Snake (✓)
-- Sprite with 4 directional walking animations
+- Sprite with 4 directional walking animations (✓)
 - Infinitely scrolling 4 directional sprite movement
 - Windowing
 - Pong
