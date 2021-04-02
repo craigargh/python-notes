@@ -1,6 +1,40 @@
+## Learning
+
+Technical Learning (✓):
+- Game Programming Algorithms and Techniques (/)
+- Implement algorithms (/)
+
+- Game design patterns
+- Implement patterns
+
+- Flash save notes (/)
+- C++ programming book
+- Unit testing
+- Debugger setup (/)
+- Tonc
+- Aseprite
+- libgba console
+- posprintf
+- Beginner and Optimisation FAQs
+- Introduction to Nintendo DS Programming
+
+Game Design:
+- Pixel art book
+- Tiled/OGMO (map editor)
+- Reread game design book
+- Boss keys notes
+- MilkyTracker
+
+Writing:
+- Rewrite notes to only use concise libgba examples
+- Correct EEPROM/SRAM explanation 
+- Document libgba sprite attributes/settings in a table 
+- Document libgba background attributes/settings in a table 
+- Cross reference sprite/bg settings with official GBA documentation
+- Explain GBA architecture (refer to A-Level Computing book)
 
 
-Learning (✓):
+Complete:
 - Kyle Halladay tutorial (✓)
 - MaxMod Sound tutorial (✓)
 - Saving and loading (✓)
@@ -10,39 +44,14 @@ Learning (✓):
 - 4bpp sprites (✓)
 - Make four directional sprite movement (✓)
 - Infinitely scrolling 4 directional sprite movement (✓)
-- Flash saves (/)
-- 4bpp backgrounds
-- Writing screen blocks with CpuFastSet
-- C++ programming book
-- Rewrite notes to only use concise libgba examples
+- 4bpp backgrounds (✓)
+- Writing screen blocks with CpuFastSet (✓)
+- mgba Logging (✓)
 
-- Tonc
-- Aseprite
-- Debugger setup (/)
-- mgba Logging 
-- libgba console 
-- posprintf
-- Game Programming Algorithms and Techniques
-- Game design patterns
-- Unit testing
-- Pixel art book
-- Tiled/OGMO (map editor)
-- Beginner and Optimisation FAQs
-- Introduction to Nintendo DS Programming
-- Boss keys notes
-- Reread game design book
-- MilkyTracker
 
-Writing:
-- Correct EEPROM/SRAM explanation 
-- Document libgba sprite attributes/settings in a table 
-- Document libgba background attributes/settings in a table 
-- Cross reference sprite/bg settings with official GBA documentation
-- Explain GBA architecture (refer to A-Level Computing book)
-
+## Game Ideas
 
 Games:
-
 - Snake (✓)
 - Sprite with 4 directional walking animations (✓)
 - Infinitely scrolling 4 directional sprite movement
