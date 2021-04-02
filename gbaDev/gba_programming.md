@@ -2503,66 +2503,170 @@ https://sausage-factory.games/dev-blog/Gameboy-Advance-Dev-Workflow/
 
 ## Logging 
 
-https://discord.com/channels/303217943234215948/312199400875360256/757604488080130111
-
-```cpp
-
-#if BTN_CFG_LOG_IMPLEMENTATION == BTN_LOG_IMPLEMENTATION_VBA
-    void log(const istring_base& message)
-    {
-        asm volatile
-        (
-            "mov r0, %0;"
-            "swi 0xff;"
-            :
-            : "r" (message.data())
-            : "r0"
-        );
-
-        asm volatile
-        (
-            "mov r0, %0;"
-            "swi 0xff;"
-            :
-            : "r" ("\n")
-            : "r0"
-        );
-    }
+Logging in mgba can be done using code in the `mgba` library. 
 
 
+mgba.h
+```c
+/*
+ mgba.h
+ Copyright (c) 2016 Jeffrey Pfau
 
-#elif BTN_CFG_LOG_IMPLEMENTATION == BTN_LOG_IMPLEMENTATION_NOCASHGBA
-    void log(const istring_base& message)
-    {
-        nocash_puts(message.data());
-    }
+ Redistribution and use in source and binary forms, with or without modification,
+ are permitted provided that the following conditions are met:
+  1. Redistributions of source code must retain the above copyright notice,
+     this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright notice,
+     this list of conditions and the following disclaimer in the documentation and/or
+     other materials provided with the distribution.
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE
+ LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
+#ifndef MGBA_H
+#define MGBA_H
 
-
-#elif BTN_CFG_LOG_IMPLEMENTATION == BTN_LOG_IMPLEMENTATION_MGBA
-    void log(const istring_base& message)
-    {
-        // https://github.com/mgba-emu/mgba/blob/master/opt/libgba/mgba.c
-
-        volatile uint16_t& reg_debug_enable = *reinterpret_cast<uint16_t*>(0x4FFF780);
-        reg_debug_enable = 0xC0DE;
-
-        int max_characters_per_line = 256;
-        char& reg_debug_string = *reinterpret_cast<char*>(0x4FFF600);
-        volatile uint16_t& reg_debug_flags = *reinterpret_cast<uint16_t*>(0x4FFF700);
-        const char* message_data = message.data();
-        int characters_left = message.size();
-
-        while(characters_left > 0)
-        {
-            int characters_to_write = btn::min(characters_left, max_characters_per_line);
-            memory::copy(*message_data, characters_to_write, reg_debug_string);
-            reg_debug_flags = 2 | 0x100;
-            message_data += characters_to_write;
-            characters_left -= characters_to_write;
-        }
-    }
-#else
+#ifdef __cplusplus
+extern "C" {
 #endif
 
+#define MGBA_LOG_FATAL 0
+#define MGBA_LOG_ERROR 1
+#define MGBA_LOG_WARN 2
+#define MGBA_LOG_INFO 3
+#define MGBA_LOG_DEBUG 4
+
+bool mgba_open(void);
+void mgba_close(void);
+
+void mgba_printf(int level, const char* string, ...);
+bool mgba_console_open(void);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
 ```
+
+
+mgba.c
+```c
+/*
+ mgba.h
+ Copyright (c) 2016 Jeffrey Pfau
+
+ Redistribution and use in source and binary forms, with or without modification,
+ are permitted provided that the following conditions are met:
+  1. Redistributions of source code must retain the above copyright notice,
+     this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright notice,
+     this list of conditions and the following disclaimer in the documentation and/or
+     other materials provided with the distribution.
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE
+ LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#include <sys/iosupport.h>
+#include <gba_types.h>
+
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+#include "mgba.h"
+
+#define REG_DEBUG_ENABLE (vu16*) 0x4FFF780
+#define REG_DEBUG_FLAGS (vu16*) 0x4FFF700
+#define REG_DEBUG_STRING (char*) 0x4FFF600
+
+ssize_t mgba_stdout_write(struct _reent* r __attribute__((unused)), void* fd __attribute__((unused)), const char* ptr, size_t len) {
+    if (len > 0x100) {
+        len = 0x100;
+    }
+    strncpy(REG_DEBUG_STRING, ptr, len);
+    *REG_DEBUG_FLAGS = MGBA_LOG_INFO | 0x100;
+    return len;
+}
+
+ssize_t mgba_stderr_write(struct _reent* r __attribute__((unused)), void* fd __attribute__((unused)), const char* ptr, size_t len) {
+    if (len > 0x100) {
+        len = 0x100;
+    }
+    strncpy(REG_DEBUG_STRING, ptr, len);
+    *REG_DEBUG_FLAGS = MGBA_LOG_ERROR | 0x100;
+    return len;
+}
+
+void mgba_printf(int level, const char* ptr, ...) {
+    level &= 0x7;
+    va_list args;
+    va_start(args, ptr);
+    vsnprintf(REG_DEBUG_STRING, 0x100, ptr, args);
+    va_end(args);
+    *REG_DEBUG_FLAGS = level | 0x100;
+}
+
+static const devoptab_t dotab_mgba_stdout = {
+    "mgba_stdout",
+    0,
+    NULL,
+    NULL,
+    mgba_stdout_write
+};
+
+static const devoptab_t dotab_mgba_stderr = {
+    "mgba_stderr",
+    0,
+    NULL,
+    NULL,
+    mgba_stderr_write
+};
+
+bool mgba_console_open(void) {
+    if (!mgba_open()) {
+        return false;
+    }
+    devoptab_list[STD_OUT] = &dotab_mgba_stdout;
+    devoptab_list[STD_ERR] = &dotab_mgba_stderr;
+    return true;
+}
+
+bool mgba_open(void) {
+    *REG_DEBUG_ENABLE = 0xC0DE;
+    return *REG_DEBUG_ENABLE == 0x1DEA;
+}
+
+void mgba_close(void) {
+    *REG_DEBUG_ENABLE = 0;
+}
+```
+
+
+This can be used to override the `printf()` function, which will log output to the mgba logs when called:
+
+```c
+#include "mgba.h"
+
+mgba_console_open();
+printf("Hello");
+``` 
+
+
+
+Logging: additional implementations:
+https://discord.com/channels/303217943234215948/312199400875360256/757604488080130111
+https://github.com/GValiente/butano
