@@ -341,3 +341,42 @@ int main() {
 **Sprite sheets** are an optimised way to store images that are used by games. Instead of loading a single image for each sprite and each animation for that sprite, a sprite sheet contains all of the images for several sprites in a single file.
 
 
+## Chapter 5: Input
+
+
+Input allows interactivity with games.
+
+A **digital** input is an input type that is either on or off, for example a button
+
+An **analog** input is an input type that has a range of values, such as a joystick.
+
+Inputs can be processed as: 
+- Individual events: such as a single button press
+- Chords: multiple button pressed together
+- Sequences: multiple buttons pressed in a specific order
+
+
+To make easier to represent key value, a Key code is a type of variable that maps to a specific key. When the key is pressed, the keycode can be used to check whether the key is pressed.
+
+If we just checked if a key was pressed every frame, we may end causing an action to trigger to frequently. For example if the user presses the start button to open a menu, they'd need to press it exactly for one frame otherwise the menu opening and closing would trigger for each frame the button is pressed. This is not an ideal situation.
+
+Key states are used to record whether a key is pressed, released or held. To do this the code records the current state and previous state of the key to work out whether the key is just pressed, just released, held or still released. There are different ways to represent this in the code, including as an enum.
+
+
+One way to get input is to poll the input each frame and return the state of each key after they are polled.
+
+
+Event based input is used as a way of decoupling the polling of input from the actions required as a result of the input. Instead of each action that requires input individually polling the input each frame, the input is polled once per frame and events are dispatched to trigger any actions that rely on the input.
+
+The basic components of an event-based input system:
+- Input Bindings: A map of keycodes to the event names that they trigger.
+- Event Bindings
+  - Event: The type of event triggered by the input, such as "up_pressed". Usually stored as a map, with event as the key, while state and callable are stored in a list of tuples.
+  - State type: The state that the event is applicable for. For example certain bindings are only applicable when a menu is open, while others will apply while the main game is running.
+  - Callable: A function of method that will be called when the event triggers. For example open a menu or make an attack.
+- Poll Input:
+  - Iterates through each key binding to check if they are pressed
+  - If they are pressed filters the event bindings that match the current game state (this step is necessary to prevent bugs where an event changes the game state and accidentally causes multiple actions to run)
+  - Iterates through each active event binding to call the action
+- Add Binding: A method for registering a new event binding
+

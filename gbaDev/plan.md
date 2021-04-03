@@ -1,14 +1,30 @@
 ## Learning
 
 Technical Learning (✓):
-- Game Programming Algorithms and Techniques (/)
-- Implement algorithms (/)
+- Game Programming Algorithms and Techniques book (/)
+    - Chapter 1: Overview (✓)
+    - Chapter 2: 2D Graphics (✓)
+    - Chapter 5: Input (✓)
+    - Chapter 6: Sound (/)
+    - Chapter 4: Linear algebra
+    - Chapter 7: Physics
+    - Chapter 8: Cameras
+    - Chapter 9: AI
+    - Chapter 10: UI
+    - Chapter 11: Scripting and Data
+    
+- Implement Game Algorithms from book (/)
+    - Sprite (✓)
+    - Sprites with animations (✓)
+    - Input bindings (✓)
+    - Sprite sounds
 
-- Game design patterns
-- Implement patterns
+- Game Design Patterns book
+- Implement Game Design Patterns from book
 
 - Flash save notes (/)
 - C++ programming book
+- Button chords and combos for input events
 - Unit testing
 - Debugger setup (/)
 - Tonc
