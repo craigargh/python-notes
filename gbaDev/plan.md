@@ -32,6 +32,7 @@ Technical Learning (✓):
 - libgba console
 - posprintf
 - Beginner and Optimisation FAQs
+- Godot tutorial
 - Introduction to Nintendo DS Programming
 
 Game Design:
