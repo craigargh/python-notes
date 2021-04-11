@@ -733,12 +733,27 @@ A plane is a flat surface.
 
 ## Collision Geometry
 
+### Bounding Sphere
 
+### Axis-Aligned Bounding Box (AABB)
+
+
+Oriented bounding boxes are an alternative, but complex to calculate.
+
+### Capsule
+
+### Convex Polygon
 
 
 ## Collision Detection
 
+### Sphere/Sphere Intersection
 
+### AABB/AABB Intersection
+
+### Collision Response
+
+### Optimising Collisions
 
 
 ## Physics-Based Movement

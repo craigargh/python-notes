@@ -6,7 +6,7 @@ Technical Learning (✓):
     - Chapter 2: 2D Graphics (✓)
     - Chapter 5: Input (✓)
     - Chapter 6: Sound (/)
-    - Chapter 4: Linear algebra
+    - Chapter 4: Linear algebra (/)
     - Chapter 7: Physics
     - Chapter 8: Cameras
     - Chapter 9: AI
@@ -25,6 +25,7 @@ Technical Learning (✓):
 - Flash save notes (/)
 - C++ programming book
 - Button chords and combos for input events
+- Box2D physics library
 - Unit testing
 - Debugger setup (/)
 - Tonc
