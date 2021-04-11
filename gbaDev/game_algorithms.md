@@ -718,9 +718,49 @@ Vector2D lerp(Vector2D a, Vector2D b, Float fraction){
 
 ## Matrices
 
+Matrices are primarily used in 3D games.
+
 [COME BACK TO THIS]
 
 
-## Chapter 7: Physics
+# Chapter 7: Physics
+
+## Planes, Rays and Line Segments
+
+A plane is a flat surface.
+
+
+
+## Collision Geometry
+
+
+
+
+## Collision Detection
+
+
+
+
+## Physics-Based Movement
+
+
+
+
+# Chapter 9: Artificial Intelligence
+
+
+
+## Pathfinding
+
+
+
+## State-Based Behaviour
+
+
+
+## Strategy and Planning
+
+
+
 
 
