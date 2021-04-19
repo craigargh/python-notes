@@ -727,33 +727,110 @@ Matrices are primarily used in 3D games.
 
 ## Planes, Rays and Line Segments
 
-A plane is a flat surface.
+A plane is a flat 2D surface.
 
+A **ray** is a line that has a starting point, but extends infinitely in a direction. A **line segment** is a line that has a starting point and an end point.
 
+A **ray cast** is where a ray is used to check whether or not it intersects with other geometry.  In many game engines, a line segment is actually used instead of a ray, though they will still be referred to as a ray. As an example a ray cast can be used to check collisions when firing a bullet or an arrow. They can also be used to detect whether the player is in the line of site of an enemy.
+
+A line segement can be represented as an class with start and end point attributes like so:
+
+```cpp
+class LineSegment2D{
+    Vector2D startPoint;
+    Vector2D endPoint;
+};
+```
 
 ## Collision Geometry
 
-### Bounding Sphere
+**Collision geometry** is used to check whether two game objects have collided. Collision geometry is usually a simplified version of the game object's representation in the game. For example with 3D models it would be very inefficient to check collissions for every polygon, especially for models with thousands or millions of polygons, so instead simplified hitboxes are used instead.
+
+Some game objects even utilise multiple levels of collision geometry based on efficiency, such as checking collision with a bounding sphere first (as it is a very simple calculation to do), before checking more accurate collision geometry, like multiple bounding boxes.
+
+The types of collision geometry useful for 2D games include:
+- Bounding circles
+- Axis-aligned bounding box (AABB)
+- Oriented bounding boxes (not covered)
+- Capcules
+- Convex polygons
+
+### Bounding Circle
+
+A **bounding circle** (or a **bounding sphere** in 3D) is a type of collision geometry that uses a circle to check for collision between game objects. 
+
+A bounding circle is made up of two components: the location of the center of the circle (represented as a vector), and the radius of the circle (represented as a decimal scalar).
+
+```cpp
+class BoundingCircle {
+    Vector2D location;
+    float radius;
+};
+```
+
+Bounding circles work best as collision detection for circular objects, such as balls. They can lead to inaccurate collision detection for less circular objects like crates, which will have a lot of white space around the about when using a circle.
+
+Bounding circles are good as a first level of collision detection before other more accurate collision detection methods are used as the calculation is pretty quick to calculate.
+
 
 ### Axis-Aligned Bounding Box (AABB)
 
+An axis-aligned bounding box (AABB) uses a recentangle for collision geometry. Each axis of the bounding box is aligned to the x and y axis, so the rectangle aligns perfectly with box axis.
 
-Oriented bounding boxes are an alternative, but complex to calculate.
+An axis-aligned bounding box is made up of two position attributes: the bottom-left and top-right points of the rectangle, also referred to as a min and max points respectively.
+
+```cpp
+class AABB {
+    Vector2D min; // bottom-left
+    Vector2D max; // top-right
+};
+```
+If an object within a bounding box is rotated, the axis-aligned bounding box cannot rotate with it. Instead the bounding box size along the axes will resize with the moving object, often leading to whitespace within the bounding box. This can lead to inaccurate collision detection. 
+
+
+An oriented bounding boxes is an alternative, where the rectangle is rotated and does not necessarily align with the axes. However calculating collisions with an oriented bounding box is a lot more complex to calculate than an axis-aligned bounding box.
+
 
 ### Capsule
 
+A **capsule** is a type of collision geometry that is a composite of two semi-circular bounding boxes and a rectangle bounding box. Effectively it is an axis-aligned bounding box with two semi-circles attached to the top and bottom.
+
+Capsules are often used as collision geometry for humanoid games objects as they account for whitespace around the head and feet.
+
+A capsule is represented with a start point, an end point and a radius:
+
+```cpp
+class Capsule {
+    Vector2D start;
+    Vector2D end;
+    float radius;
+};
+```
+
 ### Convex Polygon
+
+A **convex polygon** is a type of collision geometry that uses multiple lines in a polygon to check for collision. Overall polygons can be more accurate, but less efficient to use for collision detection.
 
 
 ## Collision Detection
 
+
+
 ### Sphere/Sphere Intersection
+
+
 
 ### AABB/AABB Intersection
 
+
+
 ### Collision Response
 
+
+
 ### Optimising Collisions
+
+
 
 
 ## Physics-Based Movement

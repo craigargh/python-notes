@@ -7,8 +7,7 @@ Technical Learning (✓):
     - Chapter 5: Input (✓)
     - Chapter 6: Sound (/)
     - Chapter 4: Linear algebra (/)
-    - Chapter 7: Physics
-    - Chapter 8: Cameras
+    - Chapter 7: Physics (/)
     - Chapter 9: AI
     - Chapter 10: UI
     - Chapter 11: Scripting and Data
@@ -18,14 +17,15 @@ Technical Learning (✓):
     - Sprites with animations (✓)
     - Input bindings (✓)
     - Sprite sounds
+    - Collision detection
 
 - Game Design Patterns book
 - Implement Game Design Patterns from book
 
 - Flash save notes (/)
+- Adapt link cable library
 - C++ programming book
 - Button chords and combos for input events
-- Box2D physics library
 - Unit testing
 - Debugger setup (/)
 - Tonc
@@ -34,6 +34,7 @@ Technical Learning (✓):
 - posprintf
 - Beginner and Optimisation FAQs
 - Godot tutorial
+- Box2D physics library
 - Introduction to Nintendo DS Programming
 
 Game Design:
